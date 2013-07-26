@@ -23,7 +23,7 @@ iBox 包含三部分：ibox.js、css(resources/css)、images(resources/images)
 
 ### Simple Example
 
-http://maxzhang.github.io/ibox/dev/examples/simple/index.html
+http://maxzhang.github.io/ibox2/dev/examples/simple/index.html
 
 #### 截图
 
