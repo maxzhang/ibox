@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=320.1, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<meta name="format-detection" content="telephone=no, email=no" />
+<title>Simple Example</title>
+
+<link rel="stylesheet/less" type="text/css" href="../../resources/css/ibox.less" media="all" />
+<script type="text/javascript" src="../../resources/css/less-1.3.3.min.js"></script>
+
+<style type="text/css">
+    .section {
+        margin: 35px 0;
+        background-color: #ffffff;
+        border-color: #c8c8c8;
+        border-width: 1px 0;
+        -webkit-border-image: url("../../resources/images/border.png") 2 0;
+        border-image: url("../../resources/images/border.png") 2 0;
+    }
+
+    .section > .cell {
+        position: relative;
+        margin-left: 15px;
+        height: 43px;
+        border-color: #c8c8c8;
+        border-width: 0 0 1px 0;
+        -webkit-border-image: url("../../resources/images/border.png") 0 0 2 0;
+        border-image: url("../../resources/images/border.png") 0 0 2 0;
+    }
+
+    .section > .cell:nth-last-child(1) {
+        border-bottom-width: 0;
+    }
+
+    .section > .cell > span {
+        position: absolute;
+        top: 10px;
+        left: 0;
+        font: normal 17px Helvetica;
+        color: #000000;
+    }
+
+    .section > .cell > span {
+        position: absolute;
+        top: 10px;
+        left: 0;
+        right: 25px;
+        font: normal 17px Helvetica;
+        color: #000000;
+    }
+
+    .section > .cell > .next {
+        position: absolute;
+        top: 14px;
+        right: 9px;
+        width: 8px;
+        height: 13px;
+        background-image: url("../../resources/images/next.png");
+        background-size: 8px 13px;
+    }
+</style>
+</head>
+
+<body>
+
+<script id="settings-tmpl" type="text/tmpl">
+    <div class="section">
+        <div class="cell">
+            <span>General</span>
+            <div class="next"></div>
+        </div>
+        <div class="cell">
+            <span>Sounds</span>
+            <div class="next"></div>
+        </div>
+        <div class="cell">
+            <span>Brightness & Wallpaper</span>
+            <div class="next"></div>
+        </div>
+        <div class="cell">
+            <span>Privacy</span>
+            <div class="next"></div>
+        </div>
+    </div>
+    <div class="section">
+        <div class="cell">
+            <span>iCloud</span>
+            <div class="next"></div>
+        </div>
+        <div class="cell">
+            <span>Mail, Contacts, Calendars</span>
+            <div class="next"></div>
+        </div>
+        <div class="cell">
+            <span>Notes</span>
+            <div class="next"></div>
+        </div>
+        <div class="cell">
+            <span>Reminders</span>
+            <div class="next"></div>
+        </div>
+        <div class="cell">
+            <span>Phone</span>
+            <div class="next"></div>
+        </div>
+        <div class="cell">
+            <span>Messages</span>
+            <div class="next"></div>
+        </div>
+        <div class="cell">
+            <span>FaceTime</span>
+            <div class="next"></div>
+        </div>
+        <div class="cell">
+            <span>Maps</span>
+            <div class="next"></div>
+        </div>
+        <div class="cell">
+            <span>Compass</span>
+            <div class="next"></div>
+        </div>
+        <div class="cell">
+            <span>Safari</span>
+            <div class="next"></div>
+        </div>
+    </div>
+    <div class="section">
+        <div class="cell">
+            <span>iTunes & App Stores</span>
+            <div class="next"></div>
+        </div>
+        <div class="cell">
+            <span>Music</span>
+            <div class="next"></div>
+        </div>
+        <div class="cell">
+            <span>Videos</span>
+            <div class="next"></div>
+        </div>
+        <div class="cell">
+            <span>Photos & Camera</span>
+            <div class="next"></div>
+        </div>
+        <div class="cell">
+            <span>Game Center</span>
+            <div class="next"></div>
+        </div>
+    </div>
+</script>
+
+<script id="general-tmpl" type="text/tmpl">
+    <div class="section">
+        <div class="cell">
+            <span>About</span>
+            <div class="next"></div>
+        </div>
+        <div class="cell">
+            <span>Software Update</span>
+            <div class="next"></div>
+        </div>
+    </div>
+    <div class="section">
+        <div class="cell">
+            <span>Siri</span>
+            <div class="next"></div>
+        </div>
+        <div class="cell">
+            <span>Spotlight Search</span>
+            <div class="next"></div>
+        </div>
+        <div class="cell">
+            <span>Text Size</span>
+            <div class="next"></div>
+        </div>
+        <div class="cell">
+            <span>Accessibility</span>
+            <div class="next"></div>
+        </div>
+    </div>
+    <div class="section">
+        <div class="cell">
+            <span>Usage</span>
+            <div class="next"></div>
+        </div>
+        <div class="cell">
+            <span>Background App Refresh</span>
+            <div class="next"></div>
+        </div>
+    </div>
+    <div class="section">
+        <div class="cell">
+            <span>Auto-Lock</span>
+            <div class="next"></div>
+        </div>
+        <div class="cell">
+            <span>Passcode Lock</span>
+            <div class="next"></div>
+        </div>
+        <div class="cell">
+            <span>Restrictions</span>
+            <div class="next"></div>
+        </div>
+    </div>
+    <div class="section">
+        <div class="cell">
+            <span>Date & Time</span>
+            <div class="next"></div>
+        </div>
+        <div class="cell">
+            <span>Keyboard</span>
+            <div class="next"></div>
+        </div>
+        <div class="cell">
+            <span>International</span>
+            <div class="next"></div>
+        </div>
+    </div>
+    <div class="section">
+        <div class="cell">
+            <span>iTunes Wi-Fi Sync</span>
+            <div class="next"></div>
+        </div>
+        <div class="cell">
+            <span>VPN</span>
+            <div class="next"></div>
+        </div>
+    </div>
+    <div class="section">
+        <div class="cell">
+            <span>Reset</span>
+            <div class="next"></div>
+        </div>
+    </div>
+</script>
+
+<script type="text/javascript" src="../share/artTemplate-2.0.1.min.js"></script>
+<script type="text/javascript" src="../share/iscroll-lite-5.0.4.min.js"></script>
+<script type="text/javascript" src="../../src/klass/base.js"></script>
+<script type="text/javascript" src="../../src/klass/klass.js"></script>
+<script type="text/javascript" src="../../src/utils.js"></script>
+<script type="text/javascript" src="../../src/ibox.js"></script>
+<script type="text/javascript" src="../../src/view.js"></script>
+<script type="text/javascript" src="../../src/header.js"></script>
+<script type="text/javascript" src="../../src/generalheader.js"></script>
+<script type="text/javascript" src="simple.js"></script>
+
+</body>
+</html>
