@@ -27,6 +27,6 @@ http://maxzhang.github.io/ibox/dev/examples/simple/index.html
 
 #### 截图
 
-<img src="https://raw.github.com/maxzhang/ibox2/master/examples/share/feature.jpg" style="width:320px;border:1px solid #ccc;-webkit-border-radius:5px;border-radius:5px;" />
+<img src="https://raw.github.com/maxzhang/ibox2/master/examples/share/feature.jpg" width="320" />
 
 
