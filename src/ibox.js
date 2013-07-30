@@ -112,7 +112,9 @@
          */
         onRender: iBoxUtils.noop,
 
-        // private
+        /**
+         * 重置iBox高宽
+         */
         resize: function() {
             var innerWidth = window.innerWidth,
                 innerHeight = window.innerHeight,
