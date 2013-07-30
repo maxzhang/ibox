@@ -4,13 +4,13 @@ iBox2 是一个仿 iOS 7 界面/交互的 JavaScirpt 库，它运行在 webkit �
 
 **Note: Test on iPhone5/iOS7 & iPhone4s/iOS6**
 
-# iBox v2.0 的特征：
+### iBox v2.0 的特征：
 
 * 适配iOS7效果；
 * 更加注重扩展性，可以自定义Header组件；
 * 接口设计更加简洁，尽量将外部调用最简单；
 
-## 使用iBox
+### 使用iBox
 
 iBox 包含三部分：ibox.js、css(resources/css)、images(resources/images)
 
@@ -24,8 +24,6 @@ iBox 包含三部分：ibox.js、css(resources/css)、images(resources/images)
 <script type="text/javascript" src="../share/iscroll-lite-5.0.4.min.js"></script>
 <script type="text/javascript" src="../../ibox.js"></script>
 ```
-
-## DEMOS
 
 ### Simple Example
 
