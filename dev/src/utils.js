@@ -269,6 +269,22 @@
                 });
             }
             return fn || Utils.noop;
+        },
+
+        dispatchClickEvent: function(e) {
+            var target = e.target,
+                ev;
+
+            if (target.tagName != 'SELECT' && target.tagName != 'INPUT' && target.tagName != 'TEXTAREA') {
+                ev = document.createEvent('MouseEvents');
+                ev.initMouseEvent('click', true, true, e.view, 1,
+                    target.screenX, target.screenY, target.clientX, target.clientY,
+                    e.ctrlKey, e.altKey, e.shiftKey, e.metaKey,
+                    0, null);
+
+                ev._constructed = true;
+                target.dispatchEvent(ev);
+            }
         }
     };
 
