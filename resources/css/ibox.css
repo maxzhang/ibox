@@ -16,5 +16,5 @@ html,body{padding:0;margin:0;}
 .ibox{background-color:#efeff4;}.ibox>.ibox-header{background-color:#f6f6f7;border-width:0 0 1px 0;-webkit-border-image:url("../images/border-bottom.png") 0 0 2 0;-moz-border-image:url("../images/border-bottom.png") 0 0 2 0;-o-border-image:url("../images/border-bottom.png") 0 0 2 0;border-image:url("../images/border-bottom.png") 0 0 2 0;}
 .ibox>.ibox-header>.button{font:normal 17px "Helvetica Neue",Helvetica,Arial,sans-serif;color:#2087fc;}.ibox>.ibox-header>.button>.back{background-image:url("../images/back.png");}
 .ibox>.ibox-header>.button.title{font:bold 17px "Helvetica Neue",Helvetica,Arial,sans-serif;color:#000000;}
-.ibox>.ibox-header>.button.highlighted{opacity:.4 !important;}
+.ibox>.ibox-header>.button.highlighted{opacity:.2 !important;}
 .ibox>.ibox-body>.ibox-view{background-color:#efeff4;}
