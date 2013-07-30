@@ -39,15 +39,16 @@
                 this.title = this.ct.querySelector('div.title[data-view="' + this.id + '"]');
             }
 
+            this.onButtonTouchStartProxy = iBoxUtils.proxy(this.onButtonTouchStart, this);
+            this.onButtonTouchEndProxy = iBoxUtils.proxy(this.onButtonTouchEnd, this);
+            this.onButtonClickProxy = iBoxUtils.proxy(this.onButtonClick, this);
             this.renderButton(this.leftButton, true);
             this.renderButton(this.rightButton, false);
         },
 
         renderButton: function(options, isLeft) {
-            var text = isLeft ? 'left' : 'right',
-                buttonProp = text + 'Button',
-                buttonHighlightHandlerProp = text + 'ButtonHighlightHandler',
-                buttonHandlerProp = text + 'ButtonHandler',
+            var me = this,
+                text = isLeft ? 'left' : 'right',
                 div, handler, btn;
             if (options) {
                 options = iBoxUtils.isString(options) ? { text: options } : options;
@@ -56,35 +57,43 @@
                 div.innerHTML = (isLeft ? '<img src="' + (options.icon || (iBoxUtils.BLANK_IMAGE + '" class="back"')) + ' />' : '') + '<div>' + options.text + '</div>';
                 div.className = 'button ' + text + (options.cls ? (' ' + options.cls) : '');
                 div.style.cssText = 'display:none;';
-                div.setAttribute('data-view', this.viewId);
-                this.ct.appendChild(div);
-                this[buttonProp] = btn = div;
+                div.setAttribute('data-view', me.viewId);
+                me.ct.appendChild(div);
+                me[text + 'Button'] = btn = div;
                 div = null;
             } else {
-                this[buttonProp] = btn = this.ct.querySelector('div.' + text + '[data-view="' + this.id + '"]');
+                me[text + 'Button'] = btn = me.ct.querySelector('div.' + text + '[data-view="' + me.id + '"]');
                 if (btn) {
                     handler = iBoxUtils.queryFunction(btn.getAttribute('data-handler'));
                 }
             }
+
             if (handler) {
+                btn.clickHandler = handler;
                 if (iBoxUtils.isMobile()) {
-                    this[buttonHighlightHandlerProp] = this.createButtonHandler(btn);
-                    this[buttonHandlerProp] = iBoxUtils.proxy(options.handler, this);
-                    btn.addEventListener(pointerEnabled ? 'MSPointerDown' : 'touchstart', this[buttonHighlightHandlerProp], false);
-                    btn.addEventListener(pointerEnabled ? 'MSPointerUp' : 'touchend', this[buttonHandlerProp], false);
-                } else {
-                    this[buttonHandlerProp] = this.createButtonHandler(btn, options.handler);
-                    btn.addEventListener('click', this[buttonHandlerProp], false);
+                    btn.addEventListener(pointerEnabled ? 'MSPointerDown' : 'touchstart', this.onButtonTouchStartProxy, false);
+                    btn.addEventListener(pointerEnabled ? 'MSPointerUp' : 'touchend', this.onButtonTouchEndProxy, false);
                 }
+                btn.addEventListener('click', this.onButtonClickProxy, false);
             }
         },
 
-        createButtonHandler: function(el, fn) {
-            var me = this;
-            return function() {
-                iBoxUtils.addClass(el, 'highlighted');
-                if (fn) fn.call(me);
-            };
+        onButtonTouchStart: function(e) {
+            var target = e.currentTarget;
+            clearTimeout(target.highlightTimeout);
+            iBoxUtils.addClass(target, 'highlighted');
+        },
+
+        onButtonTouchEnd: function(e) {
+            iBoxUtils.dispatchClickEvent(e);
+        },
+
+        onButtonClick: function(e) {
+            var target = e.currentTarget;
+            target.highlightTimeout = setTimeout(function() {
+                iBoxUtils.removeClass(target, 'highlighted');
+            }, 300);
+            if (target.clickHandler) target.clickHandler();
         },
 
         doSlide: function(reverse, action, silent, callbackFn) {
@@ -199,20 +208,16 @@
 
         destroyButton: function(isLeft) {
             var text = isLeft ? 'left' : 'right',
-                buttonProp = text + 'Button',
-                buttonHighlightHandlerProp = text + 'ButtonHighlightHandler',
-                buttonHandlerProp = text + 'ButtonHandler',
-                btn = this[buttonProp];
+                btn = this[text + 'Button'];
 
             if (btn) {
                 if (iBoxUtils.isMobile()) {
-                    btn.removeEventListener(pointerEnabled ? 'MSPointerDown' : 'touchstart', this[buttonHighlightHandlerProp], false);
-                    btn.removeEventListener(pointerEnabled ? 'MSPointerUp' : 'touchend', this[buttonHandlerProp], false);
-                } else {
-                    btn.removeEventListener('click', this[buttonHandlerProp], false);
+                    btn.removeEventListener(pointerEnabled ? 'MSPointerDown' : 'touchstart', this.onButtonTouchStartProxy, false);
+                    btn.removeEventListener(pointerEnabled ? 'MSPointerUp' : 'touchend', this.onButtonTouchEndProxy, false);
                 }
+                btn.removeEventListener('click', this.onButtonClickProxy, false);
                 iBoxUtils.removeElement(btn);
-                this[buttonProp] = null;
+                this[text + 'Button'] = btn = null;
             }
         }
     });

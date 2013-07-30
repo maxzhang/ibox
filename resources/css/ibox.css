@@ -13,7 +13,8 @@ html,body{padding:0;margin:0;}
 .ibox>.ibox-header>.button.left>div{padding-left:17px;}
 .ibox>.ibox-header>.button.right{right:0;left:auto;padding-right:10px;}.ibox>.ibox-header>.button.right>img{width:12px;}
 .ibox>.ibox-body{position:absolute;top:0;left:0;width:100%;overflow:hidden;}.ibox>.ibox-body>.ibox-view{position:absolute;top:0;left:0;}.ibox>.ibox-body>.ibox-view>.scroller{position:absolute;top:0;left:0;width:100%;}
-.ibox{background-color:#efeff4;}.ibox>.ibox-header{background-color:#f6f6f7;border-width:0 0 1px 0;-webkit-border-image:url("../images/border.png") 0 0 2 0;-moz-border-image:url("../images/border.png") 0 0 2 0;-o-border-image:url("../images/border.png") 0 0 2 0;border-image:url("../images/border.png") 0 0 2 0;}
-.ibox>.ibox-header>.button{font:normal 17px Helvetica;color:#2087fc;}.ibox>.ibox-header>.button>.back{background-image:url("../images/back.png");}
-.ibox>.ibox-header>.button.title{font:bold 17px Helvetica;color:#000000;}
+.ibox{background-color:#efeff4;}.ibox>.ibox-header{background-color:#f6f6f7;border-width:0 0 1px 0;-webkit-border-image:url("../images/border-bottom.png") 0 0 2 0;-moz-border-image:url("../images/border-bottom.png") 0 0 2 0;-o-border-image:url("../images/border-bottom.png") 0 0 2 0;border-image:url("../images/border-bottom.png") 0 0 2 0;}
+.ibox>.ibox-header>.button{font:normal 17px "Helvetica Neue",Helvetica,Arial,sans-serif;color:#2087fc;}.ibox>.ibox-header>.button>.back{background-image:url("../images/back.png");}
+.ibox>.ibox-header>.button.title{font:bold 17px "Helvetica Neue",Helvetica,Arial,sans-serif;color:#000000;}
+.ibox>.ibox-header>.button.highlighted{opacity:.4 !important;}
 .ibox>.ibox-body>.ibox-view{background-color:#efeff4;}
