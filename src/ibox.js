@@ -319,7 +319,7 @@
             }
             viewport.content = content;
         }
-        if (iBoxUtils.os.iphone5) {
+        if (!iBoxUtils.os.ios7 && iBoxUtils.os.iphone5) {
             setViewportWidthProperty('320.1');
         } else {
             setViewportWidthProperty('device-width');
