@@ -12,7 +12,7 @@ iBox2 是一个仿 iOS 7 界面/交互的 JavaScirpt 库，它运行在 webkit �
 
 ### 使用iBox
 
-iBox 包含三部分：ibox.js、css(resources/css)、images(resources/images)
+iBox 包括两部分：ibox.js、css(resources/css)
 
 引入CSS
 ```
