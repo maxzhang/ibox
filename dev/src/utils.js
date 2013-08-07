@@ -101,7 +101,7 @@
             };
         },
 
-        createOrientationChangeProxy: function (fn, scope) {
+        createOrientationChangeProxy: function(fn, scope) {
             return function() {
                 clearTimeout(scope.orientationChangedTimeout);
                 var args = slice.call(arguments, 0);

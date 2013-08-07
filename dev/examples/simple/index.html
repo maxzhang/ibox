@@ -9,8 +9,7 @@
 <meta name="format-detection" content="telephone=no, email=no" />
 <title>Simple Example</title>
 
-<link rel="stylesheet/less" type="text/css" href="../../resources/css/ibox.less" media="all" />
-<script type="text/javascript" src="../../resources/css/less-1.3.3.min.js"></script>
+<link rel="stylesheet" type="text/css" href="../../resources/css/ibox.css" media="all" />
 
 <style type="text/css">
     .section {
@@ -18,8 +17,8 @@
         background-color: #ffffff;
         border-color: #c8c8c8;
         border-width: 1px 0;
-        -webkit-border-image: url("../../resources/images/border.png") 2 0;
-        border-image: url("../../resources/images/border.png") 2 0;
+        -webkit-border-image: url("../share/border.png") 2 0;
+        border-image: url("../share/border.png") 2 0;
     }
 
     .section > .cell {
@@ -28,8 +27,8 @@
         height: 43px;
         border-color: #c8c8c8;
         border-width: 0 0 1px 0;
-        -webkit-border-image: url("../../resources/images/border-bottom.png") 0 0 2 0;
-        border-image: url("../../resources/images/border-bottom.png") 0 0 2 0;
+        -webkit-border-image: url("../share/border-bottom.png") 0 0 2 0;
+        border-image: url("../share/border-bottom.png") 0 0 2 0;
     }
 
     .section > .cell:nth-last-child(1) {
@@ -40,7 +39,7 @@
         position: absolute;
         top: 10px;
         left: 0;
-        font: normal 17px Helvetica;
+        font: normal 17px "Helvetica Neue", Helvetica, Arial, sans-serif;
         color: #000000;
     }
 
@@ -49,7 +48,7 @@
         top: 10px;
         left: 0;
         right: 25px;
-        font: normal 17px Helvetica;
+        font: normal 17px "Helvetica Neue", Helvetica, Arial, sans-serif;
         color: #000000;
     }
 
@@ -59,7 +58,7 @@
         right: 9px;
         width: 8px;
         height: 13px;
-        background-image: url("../../resources/images/next.png");
+        background-image: url("../share/next.png");
         background-size: 8px 13px;
     }
 </style>
@@ -239,13 +238,7 @@
 
 <script type="text/javascript" src="../share/artTemplate-2.0.1.min.js"></script>
 <script type="text/javascript" src="../share/iscroll-lite-5.0.4.min.js"></script>
-<script type="text/javascript" src="../../src/klass/base.js"></script>
-<script type="text/javascript" src="../../src/klass/klass.js"></script>
-<script type="text/javascript" src="../../src/utils.js"></script>
-<script type="text/javascript" src="../../src/ibox.js"></script>
-<script type="text/javascript" src="../../src/view.js"></script>
-<script type="text/javascript" src="../../src/header.js"></script>
-<script type="text/javascript" src="../../src/generalheader.js"></script>
+<script type="text/javascript" src="../../ibox.min.js"></script>
 <script type="text/javascript" src="simple.js"></script>
 
 </body>
