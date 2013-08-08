@@ -31,6 +31,6 @@ http://maxzhang.github.io/ibox2/dev/examples/simple/index.html
 
 #### 截图
 
-<img src="https://raw.github.com/maxzhang/ibox2/master/examples/share/feature.jpg" width="320" />
+<img src="https://raw.github.com/maxzhang/ibox2/master/examples/share/feature.png" width="320" />
 
 
