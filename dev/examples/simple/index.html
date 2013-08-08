@@ -21,7 +21,7 @@
         border-image: url("../share/border.png") 2 0;
     }
 
-    .section > .cell {
+    .section .cell {
         position: relative;
         margin-left: 15px;
         height: 43px;
@@ -31,11 +31,15 @@
         border-image: url("../share/border-bottom.png") 0 0 2 0;
     }
 
-    .section > .cell:nth-last-child(1) {
+    .section .cell.ico {
+        margin-left: 60px;
+    }
+
+    .section .cell:nth-last-child(1) {
         border-bottom-width: 0;
     }
 
-    .section > .cell > span {
+    .section .cell span {
         position: absolute;
         top: 10px;
         left: 0;
@@ -43,7 +47,7 @@
         color: #000000;
     }
 
-    .section > .cell > span {
+    .section .cell span {
         position: absolute;
         top: 10px;
         left: 0;
@@ -52,7 +56,7 @@
         color: #000000;
     }
 
-    .section > .cell > .next {
+    .section .cell .next {
         position: absolute;
         top: 14px;
         right: 9px;
@@ -61,6 +65,92 @@
         background-image: url("../share/next.png");
         background-size: 8px 13px;
     }
+
+    .section .cell .icon {
+        position: absolute;
+        top: 7px;
+        left: -44px;
+        width: 29px;
+        height: 29px;
+        background: url("../share/icons.png") no-repeat;
+        background-size: 145px 116px;
+    }
+
+    .section .cell .icon.i1 {
+        background-position: 0px 0px;
+    }
+
+    .section .cell .icon.i2 {
+        background-position: -29px 0px;
+    }
+
+    .section .cell .icon.i3 {
+        background-position: -58px 0px;
+    }
+
+    .section .cell .icon.i4 {
+        background-position: -87px 0px;
+    }
+
+    .section .cell .icon.i5 {
+        background-position: -116px 0px;
+    }
+
+    .section .cell .icon.i6 {
+        background-position: 0px -29px;
+    }
+
+    .section .cell .icon.i7 {
+        background-position: -29px -29px;
+    }
+
+    .section .cell .icon.i8 {
+        background-position: -58px -29px;
+    }
+
+    .section .cell .icon.i9 {
+        background-position: -87px -29px;
+    }
+
+    .section .cell .icon.i10 {
+        background-position: -116px -29px;
+    }
+
+    .section .cell .icon.i11 {
+        background-position: 0px -58px;
+    }
+
+    .section .cell .icon.i12 {
+        background-position: -29px -58px;
+    }
+
+    .section .cell .icon.i13 {
+        background-position: -58px -58px;
+    }
+
+    .section .cell .icon.i14 {
+        background-position: -87px -58px;
+    }
+
+    .section .cell .icon.i15 {
+        background-position: -116px -58px;
+    }
+
+    .section .cell .icon.i16 {
+        background-position: 0px -87px;
+    }
+
+    .section .cell .icon.i17 {
+        background-position: -29px -87px;
+    }
+
+    .section .cell .icon.i18 {
+        background-position: -58px -87px;
+    }
+
+    .section .cell .icon.i19 {
+        background-position: -87px -87px;
+    }
 </style>
 </head>
 
@@ -68,83 +158,102 @@
 
 <script id="settings-tmpl" type="text/tmpl">
     <div class="section">
-        <div class="cell">
+        <div class="cell ico">
+            <div class="icon i1"></div>
             <span>General</span>
             <div class="next"></div>
         </div>
-        <div class="cell">
+        <div class="cell ico">
+            <div class="icon i2"></div>
             <span>Sounds</span>
             <div class="next"></div>
         </div>
-        <div class="cell">
+        <div class="cell ico">
+            <div class="icon i3"></div>
             <span>Brightness & Wallpaper</span>
             <div class="next"></div>
         </div>
-        <div class="cell">
+        <div class="cell ico">
+            <div class="icon i4"></div>
             <span>Privacy</span>
             <div class="next"></div>
         </div>
     </div>
     <div class="section">
-        <div class="cell">
+        <div class="cell ico">
+            <div class="icon i5"></div>
             <span>iCloud</span>
             <div class="next"></div>
         </div>
-        <div class="cell">
+        <div class="cell ico">
+            <div class="icon i6"></div>
             <span>Mail, Contacts, Calendars</span>
             <div class="next"></div>
         </div>
-        <div class="cell">
+        <div class="cell ico">
+            <div class="icon i7"></div>
             <span>Notes</span>
             <div class="next"></div>
         </div>
-        <div class="cell">
+        <div class="cell ico">
+            <div class="icon i8"></div>
             <span>Reminders</span>
             <div class="next"></div>
         </div>
-        <div class="cell">
+        <div class="cell ico">
+            <div class="icon i9"></div>
             <span>Phone</span>
             <div class="next"></div>
         </div>
-        <div class="cell">
+        <div class="cell ico">
+            <div class="icon i10"></div>
             <span>Messages</span>
             <div class="next"></div>
         </div>
-        <div class="cell">
+        <div class="cell ico">
+            <div class="icon i11"></div>
             <span>FaceTime</span>
             <div class="next"></div>
         </div>
-        <div class="cell">
+        <div class="cell ico">
+            <div class="icon i12"></div>
             <span>Maps</span>
             <div class="next"></div>
         </div>
-        <div class="cell">
+        <div class="cell ico">
+            <div class="icon i13"></div>
             <span>Compass</span>
             <div class="next"></div>
         </div>
-        <div class="cell">
+        <div class="cell ico">
+            <div class="icon i14"></div>
             <span>Safari</span>
             <div class="next"></div>
         </div>
     </div>
     <div class="section">
-        <div class="cell">
+        <div class="cell ico">
+            <div class="icon i15"></div>
             <span>iTunes & App Stores</span>
             <div class="next"></div>
         </div>
-        <div class="cell">
+        <div class="cell ico">
+            <div class="icon i16"></div>
             <span>Music</span>
             <div class="next"></div>
         </div>
-        <div class="cell">
+        <div class="cell ico">
+            <div class="icon i17"></div>
             <span>Videos</span>
             <div class="next"></div>
         </div>
-        <div class="cell">
+        <div class="cell ico">
+            <div class="icon i18"></div>
             <span>Photos & Camera</span>
             <div class="next"></div>
         </div>
-        <div class="cell">
+        <div class="cell ico">
+            <div class="icon i19"></div>
             <span>Game Center</span>
             <div class="next"></div>
         </div>

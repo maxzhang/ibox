@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (cell.className.indexOf('cell') != -1) {
             box.slide({
                 header: {
-                    title: cell.children[0].innerHTML,
+                    title: cell.children[1].innerHTML,
                     leftButton: {
                         text: 'Settings',
                         handler: function() {
