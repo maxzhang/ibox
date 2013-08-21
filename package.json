@@ -1,7 +1,7 @@
 {
     "name": "ibox2",
     "description": "iBox2 is a WebApp UI JavaScript library that the feature like iOS 7.",
-    "version": "2.0.3",
+    "version": "2.0.4",
     "homepage": "https://github.com/maxzhang/ibox2",
     "author": "Max Zhang <zhangdaiping@gmail.com>",
     "keywords": [

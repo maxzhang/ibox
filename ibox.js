@@ -1,4 +1,4 @@
-/*! iBox v2.0.1 ~ (c) 2013 Max Zhang, https://github.com/maxzhang/ibox2 */
+/*! iBox v2.0.4 ~ (c) 2013 Max Zhang, https://github.com/maxzhang/ibox2 */
 /**
  * @class klass.Base
  *
@@ -403,7 +403,7 @@
             };
         },
 
-        createOrientationChangeProxy: function (fn, scope) {
+        createOrientationChangeProxy: function(fn, scope) {
             return function() {
                 clearTimeout(scope.orientationChangedTimeout);
                 var args = slice.call(arguments, 0);
@@ -551,12 +551,16 @@
         listenTransition: function(target, duration, callbackFn) {
             var me = this,
                 transitionEndEvent = Utils.vendor.transitionEndEvent,
-                handler = function() {
+                clear = function() {
                     if (target.transitionTimer) clearTimeout(target.transitionTimer);
                     target.transitionTimer = null;
                     target.removeEventListener(transitionEndEvent, handler, false);
+                },
+                handler = function() {
+                    clear();
                     if (callbackFn) callbackFn.call(me);
                 };
+            clear();
             target.addEventListener(transitionEndEvent, handler, false);
             target.transitionTimer = setTimeout(handler, duration + 100);
         },
@@ -602,7 +606,7 @@
      */
     var iBox = Klass.define({
         statics: {
-            version: '2.0.1'
+            version: '2.0.4'
         },
 
         /**
@@ -707,7 +711,9 @@
          */
         onRender: iBoxUtils.noop,
 
-        // private
+        /**
+         * 重置iBox高宽
+         */
         resize: function() {
             var innerWidth = window.innerWidth,
                 innerHeight = window.innerHeight,
