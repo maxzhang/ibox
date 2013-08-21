@@ -249,12 +249,16 @@
         listenTransition: function(target, duration, callbackFn) {
             var me = this,
                 transitionEndEvent = Utils.vendor.transitionEndEvent,
-                handler = function() {
+                clear = function() {
                     if (target.transitionTimer) clearTimeout(target.transitionTimer);
                     target.transitionTimer = null;
                     target.removeEventListener(transitionEndEvent, handler, false);
+                },
+                handler = function() {
+                    clear();
                     if (callbackFn) callbackFn.call(me);
                 };
+            clear();
             target.addEventListener(transitionEndEvent, handler, false);
             target.transitionTimer = setTimeout(handler, duration + 100);
         },
