@@ -193,7 +193,7 @@
                               (method = method.$owner ? method : method.caller) &&
                                method.$owner.superclass[method.$name];
             
-            return superMethod.apply(this, slice.call(args, 0) || noArgs);
+            return superMethod.apply(this, args ? slice.call(args, 0) : noArgs);
         },
         
         // Default constructor, simply returns `this`
