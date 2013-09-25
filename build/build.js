@@ -4,7 +4,7 @@ var pkg = require('../package.json'),
     uglify = require('uglify-js2');
 
 var banner = '/*! iBox v' + pkg.version + ' ~ (c) ' + (new Date().getFullYear()) + ' Max Zhang, https://github.com/maxzhang/ibox2 */\n',
-    files = ['klass/base.js', 'klass/klass.js', 'utils.js', 'ibox.js', 'view.js', 'header.js', 'generalheader.js'];
+    files = ['klass.js', 'utils.js', 'ibox.js', 'view.js', 'header.js', 'generalheader.js'];
 
 console.log('Building release: iBox v' + pkg.version);
 build();
