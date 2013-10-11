@@ -1,6 +1,6 @@
 var pkg = require('../package.json'),
     fs = require('fs'),
-    hint = require("jshint").JSHINT,
+    hint = require('jshint').JSHINT,
     uglify = require('uglify-js2');
 
 var banner = '/*! iBox v' + pkg.version + ' ~ (c) ' + (new Date().getFullYear()) + ' Max Zhang, https://github.com/maxzhang/ibox2 */\n',
