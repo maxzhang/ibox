@@ -61,10 +61,8 @@
                 this.slide({ el: first, silent: true });
             }
 
-            this.resizeProxy = iBoxUtils.proxy(this.resize, this);
-            this.onOrientationChangedProxy = iBoxUtils.createOrientationChangeProxy(this.onOrientationChanged, this);
-            window.addEventListener('resize', this.resizeProxy, false);
-            window.addEventListener('orientationchange', this.onOrientationChangedProxy, false);
+            window.addEventListener('resize', this, false);
+            window.addEventListener('orientationchange', this, false);
         },
 
         // private
@@ -252,26 +250,14 @@
             this.resize();
         },
 
-        /**
-         * 销毁iBox对象
-         */
-        destroy: function() {
-            if (!this.destroyed) {
-                this.destroyed = true;
-                this.beforeDestroy();
-
-                window.removeEventListener('resize', this.resizeProxy, false);
-                window.removeEventListener('orientationchange', this.onOrientationChangedProxy, false);
-
-                for (var o in this.view) {
-                    this.views[o].destroy();
-                    delete this.views[o];
-                }
-                this.views = this.lastView = null;
-
-                iBoxUtils.removeElement(this.header, this.body);
-                this.el = this.header = this.body = null;
-                this.onDestroy();
+        handleEvent: function(e) {
+            switch (e.type) {
+                case 'orientationchange':
+                    this.onOrientationChanged(e);
+                    break;
+                case 'resize':
+                    this.onResize(e);
+                    break;
             }
         },
 
@@ -285,7 +271,30 @@
          * @protected
          * 当iBox被销毁时调用，可以被子类实现或实例化时重写
          */
-        onDestroy: iBoxUtils.noop
+        onDestroy: iBoxUtils.noop,
+
+        /**
+         * 销毁iBox对象
+         */
+        destroy: function() {
+            if (!this.destroyed) {
+                this.destroyed = true;
+                this.beforeDestroy();
+
+                window.removeEventListener('orientationchange', this, false);
+                window.removeEventListener('resize', this, false);
+
+                for (var o in this.view) {
+                    this.views[o].destroy();
+                    delete this.views[o];
+                }
+                this.views = this.lastView = null;
+
+                iBoxUtils.removeElement(this.header, this.body);
+                this.el = this.header = this.body = null;
+                this.onDestroy();
+            }
+        }
     });
 
 

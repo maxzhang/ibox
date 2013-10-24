@@ -1,4 +1,4 @@
-/*! iBox v2.0.5 ~ (c) 2013 Max Zhang, https://github.com/maxzhang/ibox2 */
+/*! iBox v2.0.6 ~ (c) 2013 Max Zhang, https://github.com/maxzhang/ibox2 */
 (function() {
     var global = this,
         slice = Array.prototype.slice,
@@ -614,7 +614,7 @@
      */
     var iBox = Klass.define({
         statics: {
-            version: '2.0.5'
+            version: '2.0.6'
         },
 
         /**
@@ -668,10 +668,8 @@
                 this.slide({ el: first, silent: true });
             }
 
-            this.resizeProxy = iBoxUtils.proxy(this.resize, this);
-            this.onOrientationChangedProxy = iBoxUtils.createOrientationChangeProxy(this.onOrientationChanged, this);
-            window.addEventListener('resize', this.resizeProxy, false);
-            window.addEventListener('orientationchange', this.onOrientationChangedProxy, false);
+            window.addEventListener('resize', this, false);
+            window.addEventListener('orientationchange', this, false);
         },
 
         // private
@@ -859,26 +857,14 @@
             this.resize();
         },
 
-        /**
-         * 销毁iBox对象
-         */
-        destroy: function() {
-            if (!this.destroyed) {
-                this.destroyed = true;
-                this.beforeDestroy();
-
-                window.removeEventListener('resize', this.resizeProxy, false);
-                window.removeEventListener('orientationchange', this.onOrientationChangedProxy, false);
-
-                for (var o in this.view) {
-                    this.views[o].destroy();
-                    delete this.views[o];
-                }
-                this.views = this.lastView = null;
-
-                iBoxUtils.removeElement(this.header, this.body);
-                this.el = this.header = this.body = null;
-                this.onDestroy();
+        handleEvent: function(e) {
+            switch (e.type) {
+                case 'orientationchange':
+                    this.onOrientationChanged(e);
+                    break;
+                case 'resize':
+                    this.onResize(e);
+                    break;
             }
         },
 
@@ -892,7 +878,30 @@
          * @protected
          * 当iBox被销毁时调用，可以被子类实现或实例化时重写
          */
-        onDestroy: iBoxUtils.noop
+        onDestroy: iBoxUtils.noop,
+
+        /**
+         * 销毁iBox对象
+         */
+        destroy: function() {
+            if (!this.destroyed) {
+                this.destroyed = true;
+                this.beforeDestroy();
+
+                window.removeEventListener('orientationchange', this, false);
+                window.removeEventListener('resize', this, false);
+
+                for (var o in this.view) {
+                    this.views[o].destroy();
+                    delete this.views[o];
+                }
+                this.views = this.lastView = null;
+
+                iBoxUtils.removeElement(this.header, this.body);
+                this.el = this.header = this.body = null;
+                this.onDestroy();
+            }
+        }
     });
 
 
@@ -1258,7 +1267,12 @@
     });
 })(window);
 (function(window) {
-    var pointerEnabled = window.navigator.msPointerEnabled,
+    var msPointerEnabled = window.navigator.msPointerEnabled,
+        TOUCH_EVENTS = {
+            start: msPointerEnabled ? 'MSPointerDown' : 'touchstart',
+            move: msPointerEnabled ? 'MSPointerMove' : 'touchmove',
+            end: msPointerEnabled ? 'MSPointerUp' : 'touchend'
+        },
         iBoxUtils = window.iBoxUtils;
 
     /**
@@ -1298,9 +1312,6 @@
                 this.title = this.ct.querySelector('div.title[data-view="' + this.id + '"]');
             }
 
-            this.onButtonTouchStartProxy = iBoxUtils.proxy(this.onButtonTouchStart, this);
-            this.onButtonTouchEndProxy = iBoxUtils.proxy(this.onButtonTouchEnd, this);
-            this.onButtonClickProxy = iBoxUtils.proxy(this.onButtonClick, this);
             this.renderButton(this.leftButton, true);
             this.renderButton(this.rightButton, false);
         },
@@ -1330,10 +1341,10 @@
             if (handler) {
                 btn.clickHandler = handler;
                 if (iBoxUtils.isMobile()) {
-                    btn.addEventListener(pointerEnabled ? 'MSPointerDown' : 'touchstart', this.onButtonTouchStartProxy, false);
-                    btn.addEventListener(pointerEnabled ? 'MSPointerUp' : 'touchend', this.onButtonTouchEndProxy, false);
+                    btn.addEventListener(TOUCH_EVENTS.start, this, false);
+                    btn.addEventListener(TOUCH_EVENTS.end, this, false);
                 }
-                btn.addEventListener('click', this.onButtonClickProxy, false);
+                btn.addEventListener('click', this, false);
             }
         },
 
@@ -1456,6 +1467,20 @@
             }
         },
 
+        handleEvent: function(e) {
+            switch (e.type) {
+                case TOUCH_EVENTS.start:
+                    this.onButtonTouchStart(e);
+                    break;
+                case TOUCH_EVENTS.end:
+                    this.onButtonTouchEnd(e);
+                    break;
+                case 'click':
+                    this.onButtonClick(e);
+                    break;
+            }
+        },
+
         doDestroy: function() {
             if (this.title) {
                 iBoxUtils.removeElement(this.title);
@@ -1471,10 +1496,10 @@
 
             if (btn) {
                 if (iBoxUtils.isMobile()) {
-                    btn.removeEventListener(pointerEnabled ? 'MSPointerDown' : 'touchstart', this.onButtonTouchStartProxy, false);
-                    btn.removeEventListener(pointerEnabled ? 'MSPointerUp' : 'touchend', this.onButtonTouchEndProxy, false);
+                    btn.removeEventListener(TOUCH_EVENTS.start, this, false);
+                    btn.removeEventListener(TOUCH_EVENTS.end, this, false);
                 }
-                btn.removeEventListener('click', this.onButtonClickProxy, false);
+                btn.removeEventListener('click', this, false);
                 iBoxUtils.removeElement(btn);
                 this[text + 'Button'] = btn = null;
             }

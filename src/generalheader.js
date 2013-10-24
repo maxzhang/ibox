@@ -1,5 +1,10 @@
 (function(window) {
-    var pointerEnabled = window.navigator.msPointerEnabled,
+    var msPointerEnabled = window.navigator.msPointerEnabled,
+        TOUCH_EVENTS = {
+            start: msPointerEnabled ? 'MSPointerDown' : 'touchstart',
+            move: msPointerEnabled ? 'MSPointerMove' : 'touchmove',
+            end: msPointerEnabled ? 'MSPointerUp' : 'touchend'
+        },
         iBoxUtils = window.iBoxUtils;
 
     /**
@@ -39,9 +44,6 @@
                 this.title = this.ct.querySelector('div.title[data-view="' + this.id + '"]');
             }
 
-            this.onButtonTouchStartProxy = iBoxUtils.proxy(this.onButtonTouchStart, this);
-            this.onButtonTouchEndProxy = iBoxUtils.proxy(this.onButtonTouchEnd, this);
-            this.onButtonClickProxy = iBoxUtils.proxy(this.onButtonClick, this);
             this.renderButton(this.leftButton, true);
             this.renderButton(this.rightButton, false);
         },
@@ -71,10 +73,10 @@
             if (handler) {
                 btn.clickHandler = handler;
                 if (iBoxUtils.isMobile()) {
-                    btn.addEventListener(pointerEnabled ? 'MSPointerDown' : 'touchstart', this.onButtonTouchStartProxy, false);
-                    btn.addEventListener(pointerEnabled ? 'MSPointerUp' : 'touchend', this.onButtonTouchEndProxy, false);
+                    btn.addEventListener(TOUCH_EVENTS.start, this, false);
+                    btn.addEventListener(TOUCH_EVENTS.end, this, false);
                 }
-                btn.addEventListener('click', this.onButtonClickProxy, false);
+                btn.addEventListener('click', this, false);
             }
         },
 
@@ -197,6 +199,20 @@
             }
         },
 
+        handleEvent: function(e) {
+            switch (e.type) {
+                case TOUCH_EVENTS.start:
+                    this.onButtonTouchStart(e);
+                    break;
+                case TOUCH_EVENTS.end:
+                    this.onButtonTouchEnd(e);
+                    break;
+                case 'click':
+                    this.onButtonClick(e);
+                    break;
+            }
+        },
+
         doDestroy: function() {
             if (this.title) {
                 iBoxUtils.removeElement(this.title);
@@ -212,10 +228,10 @@
 
             if (btn) {
                 if (iBoxUtils.isMobile()) {
-                    btn.removeEventListener(pointerEnabled ? 'MSPointerDown' : 'touchstart', this.onButtonTouchStartProxy, false);
-                    btn.removeEventListener(pointerEnabled ? 'MSPointerUp' : 'touchend', this.onButtonTouchEndProxy, false);
+                    btn.removeEventListener(TOUCH_EVENTS.start, this, false);
+                    btn.removeEventListener(TOUCH_EVENTS.end, this, false);
                 }
-                btn.removeEventListener('click', this.onButtonClickProxy, false);
+                btn.removeEventListener('click', this, false);
                 iBoxUtils.removeElement(btn);
                 this[text + 'Button'] = btn = null;
             }
