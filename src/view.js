@@ -1,5 +1,7 @@
 (function(window) {
     var IScroll = window.IScroll,
+        vendor = window.vendor,
+        adapter = window.adapter,
         iBoxUtils = window.iBoxUtils;
 
     /**
@@ -107,7 +109,7 @@
         slide: function(reverse, action, silent, callbackFn) {
             var me = this,
                 ct = me.ct, el = me.el,
-                cssVendor = iBoxUtils.vendor.cssVendor,
+                cssPrefix = vendor.cssPrefix,
                 ctSize = iBoxUtils.getComputedSize(ct),
                 elSize = iBoxUtils.getComputedSize(el, { width: ctSize.outerWidth, height: ctSize.outerHeight }),
                 beforeCss, afterCss,
@@ -123,7 +125,7 @@
                 shadow = '-5px 0 20px #dddddd';
             }
 
-            afterCss = 'display:block;z-index:' + zIndex + ';opacity:' + (action == 'in' ? 1 : 0.7) + ';' + cssVendor + 'box-shadow:' + shadow + ';width:' + elSize.innerWidth + 'px;height:' + elSize.innerHeight + 'px;' + cssVendor + 'transform:translate3d(' + (action == 'in' ? '0' : (reverse ? ctSize.width : -offset)) + 'px,0px,0px);' + (silent === true ? '' : cssVendor + 'transition:' + cssVendor + 'transform ' + duration + 'ms,opacity ' + duration + 'ms;');
+            afterCss = 'display:block;z-index:' + zIndex + ';opacity:' + (action == 'in' ? 1 : 0.7) + ';' + cssPrefix + 'box-shadow:' + shadow + ';width:' + elSize.innerWidth + 'px;height:' + elSize.innerHeight + 'px;' + cssPrefix + 'transform:translate3d(' + (action == 'in' ? '0' : (reverse ? ctSize.width : -offset)) + 'px,0px,0px);' + (silent === true ? '' : cssPrefix + 'transition:' + cssPrefix + 'transform ' + duration + 'ms,opacity ' + duration + 'ms;');
             handler = function() {
                 if (action != 'in' && el) {
                     el.style.display = 'none';
@@ -135,10 +137,10 @@
             };
             if (silent !== true) {
                 if (action == 'in') {
-                    beforeCss = 'display:block;z-index:' + zIndex + ';opacity:' + (reverse ? 0.5 : 1) + ';' + cssVendor + 'box-shadow:' + shadow + ';width:' + elSize.innerWidth + 'px;height:' + elSize.innerHeight + 'px;' + cssVendor + 'transform:translate3d(' + (reverse ? -offset : ctSize.width) + 'px,0px,0px);';
+                    beforeCss = 'display:block;z-index:' + zIndex + ';opacity:' + (reverse ? 0.5 : 1) + ';' + cssPrefix + 'box-shadow:' + shadow + ';width:' + elSize.innerWidth + 'px;height:' + elSize.innerHeight + 'px;' + cssPrefix + 'transform:translate3d(' + (reverse ? -offset : ctSize.width) + 'px,0px,0px);';
                     el.style.cssText = beforeCss;
                 }
-                iBoxUtils.listenTransition(el, duration + defer, handler);
+                adapter.listenTransition(el, duration + defer, handler);
                 setTimeout(function() { el.style.cssText = afterCss; }, defer);
             } else {
                 el.style.cssText = afterCss;

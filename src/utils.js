@@ -1,70 +1,9 @@
 (function(window) {
-    var navigator = window.navigator,
-        userAgent = navigator.userAgent,
-        android = userAgent.match(/(Android)[\s\/]+([\d\.]+)/),
-        ios = userAgent.match(/(iPad|iPhone|iPod)\s+OS\s([\d_\.]+)/),
-        wp = userAgent.match(/(Windows\s+Phone)\s([\d\.]+)/),
-        isWebkit = /WebKit\/[\d.]+/i.test(userAgent),
-        isSafari = ios ? (navigator.standalone ? isWebkit : (/Safari/i.test(userAgent) && !/CriOS/i.test(userAgent) && !/MQQBrowser/i.test(userAgent))) : false,
-        os = {},
-        toString = Object.prototype.toString,
+    var toString = Object.prototype.toString,
         slice = Array.prototype.slice;
 
-    if (android) {
-        os.android = true;
-        os.version = android[2];
-    }
-    if (ios) {
-        os.ios = true;
-        os.version = ios[2].replace(/_/g, '.');
-        os.ios7 = /^7/.test(os.version);
-        if (ios[1] === 'iPad') {
-            os.ipad = true;
-        } else if (ios[1] === 'iPhone') {
-            os.iphone = true;
-            os.iphone5 = window.screen.height == 568;
-        } else if (ios[1] === 'iPod') {
-            os.ipod = true;
-        }
-    }
-    if (wp) {
-        os.wp = true;
-        os.version = wp[2];
-        os.wp8 = /^8/.test(os.version);
-    }
-
     var Utils = {
-
         BLANK_IMAGE: 'data:image/gif;base64,R0lGODlhAQABAID/AMDAwAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==',
-
-        /**
-         * 移动设备操作系统信息，可能会包含一下属性:
-         *
-         *  Boolean : android
-         *  Boolean : ios
-         *  Boolean : ios7
-         *  Boolean : ipad
-         *  Boolean : iphone
-         *  Boolean : iphone5
-         *  Boolean : ipod
-         *  String : version 系统版本号
-         *
-         */
-        os: os,
-
-        isMobile: function() {
-            return os.ios || os.android || os.wp;
-        },
-
-        /**
-         * 是否webkit内核浏览器
-         */
-        isWebkit: isWebkit,
-
-        /**
-         * 是否safari浏览器
-         */
-        isSafari: isSafari,
 
         noop: function() {},
 
@@ -95,23 +34,13 @@
             return toString.call(val) === '[object Function]';
         },
 
+        result: function(val, defaultValue, scope) {
+            return !Utils.isDefined(val) ? defaultValue : (Utils.isFunction(val) ? val.call(scope || window) : val);
+        },
+
         proxy:function(fn, scope) {
             return function() {
                 return fn.apply(scope, arguments);
-            };
-        },
-
-        createOrientationChangeProxy: function(fn, scope) {
-            return function() {
-                clearTimeout(scope.orientationChangedTimeout);
-                var args = slice.call(arguments, 0);
-                scope.orientationChangedTimeout = setTimeout(Utils.proxy(function() {
-                    var ori = window.orientation;
-                    if (ori != scope.lastOrientation) {
-                        fn.apply(scope, args);
-                    }
-                    scope.lastOrientation = ori;
-                }, scope), os.android ? 300 : 50);
             };
         },
 
@@ -191,76 +120,6 @@
                 outerWidth: ow < 0 ? 0 : ow,
                 outerHeight: oh < 0 ? 0 : oh
             };
-        },
-
-        vendor: (function() {
-            var dummyStyle = document.createElement('div').style,
-                propVendor = (function () {
-                    var vendors = 't,webkitT,MozT,msT,OT'.split(','),
-                        t,
-                        i = 0,
-                        l = vendors.length;
-
-                    for (; i < l; i++) {
-                        t = vendors[i] + 'ransform';
-                        if (t in dummyStyle) {
-                            return vendors[i].substr(0, vendors[i].length - 1);
-                        }
-                    }
-
-                    return false;
-                }()),
-                cssVendor = propVendor ? '-' + propVendor.toLowerCase() + '-' : '',
-                prefixStyle = function(style) {
-                    if (propVendor === '') return style;
-                    style = style.charAt(0).toUpperCase() + style.substr(1);
-                    return propVendor + style;
-                },
-                transform = prefixStyle('transform'),
-                transition = prefixStyle('transition'),
-                transitionProperty = prefixStyle('transitionProperty'),
-                transitionDuration = prefixStyle('transitionDuration'),
-                transformOrigin = prefixStyle('transformOrigin'),
-                transitionTimingFunction = prefixStyle('transitionTimingFunction'),
-                transitionDelay = prefixStyle('transitionDelay'),
-                transitionEndEvent = (function() {
-                    if (propVendor == 'webkit' || propVendor === 'O') {
-                        return propVendor.toLowerCase() + 'TransitionEnd';
-                    }
-                    return 'transitionend';
-                }());
-
-            dummyStyle = null;
-
-            return {
-                propVendor: propVendor,
-                cssVendor: cssVendor,
-                transform: transform,
-                transition: transition,
-                transitionProperty: transitionProperty,
-                transitionDuration: transitionDuration,
-                transformOrigin: transformOrigin,
-                transitionTimingFunction: transitionTimingFunction,
-                transitionDelay: transitionDelay,
-                transitionEndEvent: transitionEndEvent
-            };
-        }()),
-
-        listenTransition: function(target, duration, callbackFn) {
-            var me = this,
-                transitionEndEvent = Utils.vendor.transitionEndEvent,
-                clear = function() {
-                    if (target.transitionTimer) clearTimeout(target.transitionTimer);
-                    target.transitionTimer = null;
-                    target.removeEventListener(transitionEndEvent, handler, false);
-                },
-                handler = function() {
-                    clear();
-                    if (callbackFn) callbackFn.call(me);
-                };
-            clear();
-            target.addEventListener(transitionEndEvent, handler, false);
-            target.transitionTimer = setTimeout(handler, duration + 100);
         },
 
         queryFunction: function(method) {

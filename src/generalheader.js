@@ -5,6 +5,9 @@
             move: msPointerEnabled ? 'MSPointerMove' : 'touchmove',
             end: msPointerEnabled ? 'MSPointerUp' : 'touchend'
         },
+        vendor = window.vendor,
+        supporter = window.supporter,
+        adapter = window.adapter,
         iBoxUtils = window.iBoxUtils;
 
     /**
@@ -72,7 +75,7 @@
 
             if (handler) {
                 btn.clickHandler = handler;
-                if (iBoxUtils.isMobile()) {
+                if (supporter.isSmartDevice) {
                     btn.addEventListener(TOUCH_EVENTS.start, this, false);
                     btn.addEventListener(TOUCH_EVENTS.end, this, false);
                 }
@@ -100,7 +103,7 @@
 
         doSlide: function(reverse, action, silent, callbackFn) {
             var me = this,
-                cssVendor = iBoxUtils.vendor.cssVendor,
+                cssPrefix = vendor.cssPrefix,
                 direction = reverse ? 'right' : 'left',
                 leftButton = me.leftButton, leftText,
                 rightButton = me.rightButton,
@@ -113,9 +116,9 @@
                 duration = 350, opacityDuration = 300, defer = 50;
 
             if (action == 'in') {
-                if (leftButton) leftButton.style.cssText = 'display:block;' + cssVendor + 'transform:translate3d(-1000px,-1000px,0px);';
-                if (rightButton) rightButton.style.cssText = 'display:block;' + cssVendor + 'transform:translate3d(-1000px,-1000px,0px);';
-                if (title) title.style.cssText = 'display:block;' + cssVendor + 'transform:translate3d(-1000px,-1000px,0px);';
+                if (leftButton) leftButton.style.cssText = 'display:block;' + cssPrefix + 'transform:translate3d(-1000px,-1000px,0px);';
+                if (rightButton) rightButton.style.cssText = 'display:block;' + cssPrefix + 'transform:translate3d(-1000px,-1000px,0px);';
+                if (title) title.style.cssText = 'display:block;' + cssPrefix + 'transform:translate3d(-1000px,-1000px,0px);';
             }
 
             leftWidth = leftButton ? iBoxUtils.getComputedSize(leftButton).outerWidth : 0;
@@ -136,16 +139,16 @@
                 leftText = leftButton.querySelector('div');
                 leftInnerWidth = iBoxUtils.getComputedSize(leftButton, leftWidth).innerWidth;
                 leftTextWidth = iBoxUtils.getComputedSize(leftText, leftInnerWidth).innerWidth;
-                leftAfterCss = 'display:block;width:' + leftInnerWidth + 'px;opacity:' + (action == 'in' ? '1' : '0') + ';' + (silent === true ? '' : cssVendor + 'transition:' + 'opacity ' + opacityDuration + 'ms;');
-                leftTextAfterCss = 'width:' + leftTextWidth + 'px;' + cssVendor + 'transform:translate3d(' + (action == 'in' ? 0 : (direction == 'left' ? -leftWidth : titleLeft)) + 'px,0px,0px);' + (silent === true ? '' : '' + cssVendor + 'transition:' + cssVendor + 'transform ' + duration + 'ms;');
+                leftAfterCss = 'display:block;width:' + leftInnerWidth + 'px;opacity:' + (action == 'in' ? '1' : '0') + ';' + (silent === true ? '' : cssPrefix + 'transition:' + 'opacity ' + opacityDuration + 'ms;');
+                leftTextAfterCss = 'width:' + leftTextWidth + 'px;' + cssPrefix + 'transform:translate3d(' + (action == 'in' ? 0 : (direction == 'left' ? -leftWidth : titleLeft)) + 'px,0px,0px);' + (silent === true ? '' : '' + cssPrefix + 'transition:' + cssPrefix + 'transform ' + duration + 'ms;');
                 if (silent !== true) {
                     if (action == 'in') {
                         leftBeforeCss = 'display:block;width:' + leftInnerWidth + 'px;opacity:0;';
-                        leftTextBeforeCss = 'width:' + leftTextWidth + 'px;' + cssVendor + 'transform:translate3d(' + (direction == 'left' ? titleLeft : -leftWidth) + 'px,0px,0px);';
+                        leftTextBeforeCss = 'width:' + leftTextWidth + 'px;' + cssPrefix + 'transform:translate3d(' + (direction == 'left' ? titleLeft : -leftWidth) + 'px,0px,0px);';
                         leftButton.style.cssText = leftBeforeCss;
                         leftText.style.cssText = leftTextBeforeCss;
                     }
-                    iBoxUtils.listenTransition(leftButton, duration + defer, function() {
+                    adapter.listenTransition(leftButton, duration + defer, function() {
                         if (action != 'in' && me.leftButton) me.leftButton.style.display = 'none';
                     });
                     setTimeout(function() {
@@ -160,13 +163,13 @@
             }
             if (rightButton) {
                 iBoxUtils.removeClass(rightButton, 'highlighted');
-                rightAfterCss = 'display:block;opacity:' + (action == 'in' ? '1' : '0') + ';' + (silent === true ? '' : cssVendor + 'transition:opacity ' + opacityDuration + 'ms;');
+                rightAfterCss = 'display:block;opacity:' + (action == 'in' ? '1' : '0') + ';' + (silent === true ? '' : cssPrefix + 'transition:opacity ' + opacityDuration + 'ms;');
                 if (silent !== true) {
                     if (action == 'in') {
                         rightBeforeCss = 'display:block;opacity:0;';
                         rightButton.style.cssText = rightBeforeCss;
                     }
-                    iBoxUtils.listenTransition(rightButton, duration + defer, function() {
+                    adapter.listenTransition(rightButton, duration + defer, function() {
                         if (action != 'in' && me.rightButton) me.rightButton.style.display = 'none';
                     });
                     setTimeout(function() {
@@ -178,13 +181,13 @@
                 }
             }
             if (title) {
-                titleAfterCss = 'display:block;opacity:' + (action == 'in' ? '1' : '0') + ';' + cssVendor + 'transform:translate3d(' + (action == 'in' ? titleLeft : (direction == 'left' ? 30 : headerWidth)) + 'px,0px,0px);' + (silent === true ? '' : cssVendor + 'transition:' + cssVendor + 'transform ' + duration + 'ms,opacity ' + opacityDuration + 'ms;');
+                titleAfterCss = 'display:block;opacity:' + (action == 'in' ? '1' : '0') + ';' + cssPrefix + 'transform:translate3d(' + (action == 'in' ? titleLeft : (direction == 'left' ? 30 : headerWidth)) + 'px,0px,0px);' + (silent === true ? '' : cssPrefix + 'transition:' + cssPrefix + 'transform ' + duration + 'ms,opacity ' + opacityDuration + 'ms;');
                 if (silent !== true) {
                     if (action == 'in') {
-                        titleBeforeCss = 'display:block;opacity:0;' + cssVendor + 'transform:translate3d(' + (direction == 'left' ? (headerWidth - titleWidth / 2) : 0) + 'px,0px,0px);';
+                        titleBeforeCss = 'display:block;opacity:0;' + cssPrefix + 'transform:translate3d(' + (direction == 'left' ? (headerWidth - titleWidth / 2) : 0) + 'px,0px,0px);';
                         title.style.cssText = titleBeforeCss;
                     }
-                    iBoxUtils.listenTransition(title, duration + defer, function() {
+                    adapter.listenTransition(title, duration + defer, function() {
                         if (action != 'in' && me.title) me.title.style.display = 'none';
                         if (callbackFn) callbackFn.call(me);
                     });
@@ -227,7 +230,7 @@
                 btn = this[text + 'Button'];
 
             if (btn) {
-                if (iBoxUtils.isMobile()) {
+                if (supporter.isSmartDevice) {
                     btn.removeEventListener(TOUCH_EVENTS.start, this, false);
                     btn.removeEventListener(TOUCH_EVENTS.end, this, false);
                 }

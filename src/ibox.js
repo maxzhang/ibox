@@ -1,6 +1,8 @@
 (function(window) {
-    var iBoxUtils = window.iBoxUtils,
-        slice = Array.prototype.slice;
+    var slice = Array.prototype.slice,
+        supporter = window.supporter,
+        resizer = window.resizer,
+        iBoxUtils = window.iBoxUtils;
 
     /**
      * @class iBox
@@ -54,15 +56,12 @@
 
             this.render(target);
             this.scrollTop();
-            this.resize();
+            resizer.on(this.resize, this).trigger();
 
             var first = this.body.children[0];
             if (first) {
                 this.slide({ el: first, silent: true });
             }
-
-            window.addEventListener('resize', this, false);
-            window.addEventListener('orientationchange', this, false);
         },
 
         // private
@@ -114,42 +113,25 @@
          * 重置iBox高宽
          */
         resize: function() {
-            var innerWidth = window.innerWidth,
-                innerHeight = window.innerHeight,
-                screenWidth = window.screen.width,
-                screenHeight = window.screen.height,
-                offsetTop = this.offsets.top,
-                offsetBottom = this.offsets.bottom,
-                width = innerWidth, height, headerHeight,
-                elSize, headerSize, bodySize;
+            var width = resizer.width, height = resizer.height,
+                offsetTop = iBoxUtils.result(this.offsets.top, 0, this),
+                offsetBottom = iBoxUtils.result(this.offsets.bottom, 0, this),
+                elSize, headerSize, bodySize, headerHeight;
 
-            offsetTop = iBoxUtils.isFunction(offsetTop) ? offsetTop() : offsetTop;
-            offsetBottom = iBoxUtils.isFunction(offsetBottom) ? offsetBottom() : offsetBottom;
-
-            if (iBoxUtils.isSafari && !iBoxUtils.os.ios7) { // 计算高度，收起 iOS6 顶部导航条
-                height = window.navigator.standalone ? innerHeight : (window.orientation === 0 ? screenHeight - 44 : screenWidth - 32) - 20;
-                height = height < innerHeight ? innerHeight : height;
-            } else {
-                height = innerHeight;
-            }
             height = height - offsetTop - offsetBottom;
+            elSize = iBoxUtils.getComputedSize(this.el, { width: width, height: height });
+            headerHeight = iBoxUtils.getComputedSize(this.header).outerHeight;
+            headerSize = iBoxUtils.getComputedSize(this.header, { width: elSize.innerWidth, height: headerHeight });
+            bodySize = iBoxUtils.getComputedSize(this.body, { width: elSize.innerWidth, height: elSize.innerHeight - headerHeight });
 
-            if (width != this.lastWidth || height != this.lastHeight) {
-                this.lastWidth = width;
-                this.lastHeight = height;
+            this.scrollTop();
 
-                elSize = iBoxUtils.getComputedSize(this.el, { width: width, height: height });
-                headerHeight = iBoxUtils.getComputedSize(this.header).outerHeight;
-                headerSize = iBoxUtils.getComputedSize(this.header, { width: elSize.innerWidth, height: headerHeight });
-                bodySize = iBoxUtils.getComputedSize(this.body, { width: elSize.innerWidth, height: elSize.innerHeight - headerHeight });
+            this.el.style.cssText = 'top:' + offsetTop + 'px;width:' + elSize.innerWidth + 'px;height:' + elSize.innerHeight + 'px;';
+            this.header.style.cssText = 'top:0px;width:' + headerSize.innerWidth + 'px;height:' + headerSize.innerHeight + 'px;';
+            this.body.style.cssText = 'top:' + headerHeight + 'px;width:' + bodySize.innerWidth + 'px;height:' + bodySize.innerHeight + 'px;';
 
-                this.el.style.cssText = 'top:' + offsetTop + 'px;width:' + elSize.innerWidth + 'px;height:' + elSize.innerHeight + 'px;';
-                this.header.style.cssText = 'top:0px;width:' + headerSize.innerWidth + 'px;height:' + headerSize.innerHeight + 'px;';
-                this.body.style.cssText = 'top:' + headerHeight + 'px;width:' + bodySize.innerWidth + 'px;height:' + bodySize.innerHeight + 'px;';
-
-                if (this.lastView && !this.sliding) this.lastView.resize();
-                this.onResize(elSize, headerSize, bodySize);
-            }
+            if (this.lastView && !this.sliding) this.lastView.resize();
+            this.onResize(elSize, headerSize, bodySize);
         },
 
         /**
@@ -241,24 +223,7 @@
 
         // private
         scrollTop: function() {
-            if (iBoxUtils.isSafari) window.scrollTo(0, 1);
-        },
-
-        // private
-        onOrientationChanged: function(e) {
-            this.scrollTop();
-            this.resize();
-        },
-
-        handleEvent: function(e) {
-            switch (e.type) {
-                case 'orientationchange':
-                    this.onOrientationChanged(e);
-                    break;
-                case 'resize':
-                    this.onResize(e);
-                    break;
-            }
+            if (supporter.isSafari) window.scrollTo(0, 1);
         },
 
         /**
@@ -281,8 +246,7 @@
                 this.destroyed = true;
                 this.beforeDestroy();
 
-                window.removeEventListener('orientationchange', this, false);
-                window.removeEventListener('resize', this, false);
+                resizer.off(this.resize, this);
 
                 for (var o in this.view) {
                     this.views[o].destroy();
@@ -330,7 +294,7 @@
             }
             viewport.content = content;
         }
-        if (!iBoxUtils.os.ios7 && iBoxUtils.os.iphone5) {
+        if (!supporter.os.ios7 && window.screen.height === 528) {
             setViewportWidthProperty('320.1');
         } else {
             setViewportWidthProperty('device-width');

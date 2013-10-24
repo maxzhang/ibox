@@ -309,16 +309,106 @@
     }
 })();
 (function(window) {
+    var dummyStyle = document.createElement('div').style,
+        propPrefix = (function() {
+            var vendors = 't,webkitT,MozT,msT,OT'.split(','),
+                t,
+                i = 0,
+                l = vendors.length;
+
+            for (; i < l; i++) {
+                t = vendors[i] + 'ransform';
+                if (t in dummyStyle) {
+                    return vendors[i].substr(0, vendors[i].length - 1);
+                }
+            }
+
+            return false;
+        }()),
+        cssPrefix = propPrefix ? '-' + propPrefix.toLowerCase() + '-' : '',
+        prefixStyle = function(style) {
+            if (propPrefix === '') return style;
+            style = style.charAt(0).toUpperCase() + style.substr(1);
+            return propPrefix + style;
+        },
+        transform = prefixStyle('transform'),
+        transition = prefixStyle('transition'),
+        transitionProperty = prefixStyle('transitionProperty'),
+        transitionDuration = prefixStyle('transitionDuration'),
+        transformOrigin = prefixStyle('transformOrigin'),
+        transitionTimingFunction = prefixStyle('transitionTimingFunction'),
+        transitionDelay = prefixStyle('transitionDelay'),
+        transitionEndEvent = (function() {
+            if (propPrefix == 'webkit' || propPrefix === 'O') {
+                return propPrefix.toLowerCase() + 'TransitionEnd';
+            }
+            return 'transitionend';
+        }());
+
+    dummyStyle = null;
+
+    window.vendor =  {
+        propPrefix: propPrefix,
+        cssPrefix: cssPrefix,
+        transform: transform,
+        transition: transition,
+        transitionProperty: transitionProperty,
+        transitionDuration: transitionDuration,
+        transformOrigin: transformOrigin,
+        transitionTimingFunction: transitionTimingFunction,
+        transitionDelay: transitionDelay,
+        transitionEndEvent: transitionEndEvent
+    };
+})(window);
+(function(window) {
+    var vendor = window.vendor,
+        slice = Array.prototype.slice,
+        isAndroid = /Android/i.test(window.navigator.userAgent);
+
+    window.adapter = {
+        createOrientationChangeProxy: function(fn, scope) {
+            if (typeof scope === 'undefined') {
+                scope = fn;
+            }
+            return function() {
+                clearTimeout(scope.orientationChangedTimeout);
+                var args = slice.call(arguments, 0);
+                scope.orientationChangedTimeout = setTimeout(function() {
+                    var ori = window.orientation;
+                    if (ori != scope.lastOrientation) {
+                        fn.apply(scope, args);
+                    }
+                    scope.lastOrientation = ori;
+                }, isAndroid ? 300 : 50);
+            };
+        },
+
+        listenTransition: function(target, duration, callbackFn) {
+            var me = this,
+                clear = function() {
+                    if (target.transitionTimer) clearTimeout(target.transitionTimer);
+                    target.transitionTimer = null;
+                    target.removeEventListener(vendor.transitionEndEvent, handler, false);
+                },
+                handler = function() {
+                    clear();
+                    if (callbackFn) callbackFn.call(me);
+                };
+            clear();
+            target.addEventListener(vendor.transitionEndEvent, handler, false);
+            target.transitionTimer = setTimeout(handler, duration + 100);
+        }
+    };
+})(window);
+(function(window) {
     var navigator = window.navigator,
         userAgent = navigator.userAgent,
         android = userAgent.match(/(Android)[\s\/]+([\d\.]+)/),
-        ios = userAgent.match(/(iPad|iPhone|iPod)\s+OS\s([\d_\.]+)/),
+        ios = userAgent.match(/(iPad|iPhone|iPod);[\w\s]+OS\s([\d_\.]+)/),
         wp = userAgent.match(/(Windows\s+Phone)\s([\d\.]+)/),
         isWebkit = /WebKit\/[\d.]+/i.test(userAgent),
         isSafari = ios ? (navigator.standalone ? isWebkit : (/Safari/i.test(userAgent) && !/CriOS/i.test(userAgent) && !/MQQBrowser/i.test(userAgent))) : false,
-        os = {},
-        toString = Object.prototype.toString,
-        slice = Array.prototype.slice;
+        os = {};
 
     if (android) {
         os.android = true;
@@ -332,7 +422,6 @@
             os.ipad = true;
         } else if (ios[1] === 'iPhone') {
             os.iphone = true;
-            os.iphone5 = window.screen.height == 568;
         } else if (ios[1] === 'iPod') {
             os.ipod = true;
         }
@@ -343,10 +432,7 @@
         os.wp8 = /^8/.test(os.version);
     }
 
-    var Utils = {
-
-        BLANK_IMAGE: 'data:image/gif;base64,R0lGODlhAQABAID/AMDAwAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==',
-
+    window.supporter = {
         /**
          * 移动设备操作系统信息，可能会包含一下属性:
          *
@@ -362,9 +448,12 @@
          */
         os: os,
 
-        isMobile: function() {
+        /**
+         * 是否智能设备
+         */
+        isSmartDevice: (function() {
             return os.ios || os.android || os.wp;
-        },
+        }()),
 
         /**
          * 是否webkit内核浏览器
@@ -374,7 +463,102 @@
         /**
          * 是否safari浏览器
          */
-        isSafari: isSafari,
+        isSafari: isSafari
+    };
+})(window);
+(function(window) {
+    var navigator = window.navigator,
+        adapter = window.adapter,
+        supporter = window.supporter,
+        result = function(val, defaultValue, scope) {
+            var type = typeof val;
+            return type === 'undefined' ? defaultValue : (type === 'function' ? val.call(scope || window) : val);
+        };
+
+    window.resizer = (function() {
+        var callbacks = [],
+            resizeTimer,
+            pub;
+
+        function resize() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                resizeTimer = null;
+                processResize();
+            }, 100);
+        }
+
+        function processResize() {
+            var innerWidth = window.innerWidth,
+                innerHeight = window.innerHeight,
+                screenWidth = window.screen.width,
+                screenHeight = window.screen.height,
+                width = innerWidth, height,
+                offsetLeft, offsetRight, offsetTop, offsetBottom,
+                fn, scope, options;
+
+            if (supporter.isSmartDevice && supporter.isSafari && !supporter.os.ios7) { // 计算高度，收起 iOS6 顶部导航条
+                height = navigator.standalone ? innerHeight : (window.orientation === 0 ? screenHeight - 44 : screenWidth - 32) - 20;
+                height = height < innerHeight ? innerHeight : height;
+            } else {
+                height = innerHeight;
+            }
+
+            if (width != pub.width || height != pub.height) {
+                pub.width = width;
+                pub.height = height;
+                callbacks.forEach(function(o) {
+                    fn = o.fn;
+                    if (fn) {
+                        scope = o.scope;
+                        options = o.options || {};
+                        offsetLeft = result(options.offsetLeft, 0, scope);
+                        offsetRight = result(options.offsetRight, 0, scope);
+                        offsetTop = result(options.offsetTop, 0, scope);
+                        offsetBottom = result(options.offsetBottom, 0, scope);
+                        fn.call(scope || window, width - offsetLeft - offsetRight, height - offsetTop - offsetBottom);
+                    }
+                });
+            }
+        }
+
+        pub = {
+            on: function(callbackFn, scope, options) {
+                callbacks.push({
+                    fn: callbackFn,
+                    scope: scope,
+                    options: options
+                });
+                return pub;
+            },
+            off: function(callbackFn, scope, options) {
+                callbacks.every(function(o, i) {
+                    if (o.fn === callbackFn && o.scope === scope && o.options === options) {
+                        callbacks.splice(i, 1);
+                        return false;
+                    }
+                });
+                return pub;
+            },
+            trigger: function() {
+                resize();
+                return pub;
+            }
+        };
+
+        window.addEventListener('resize', resize, false);
+        window.addEventListener('orientationchange', adapter.createOrientationChangeProxy(processResize), false);
+        resize();
+
+        return pub;
+    }());
+})(window);
+(function(window) {
+    var toString = Object.prototype.toString,
+        slice = Array.prototype.slice;
+
+    var Utils = {
+        BLANK_IMAGE: 'data:image/gif;base64,R0lGODlhAQABAID/AMDAwAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==',
 
         noop: function() {},
 
@@ -405,23 +589,13 @@
             return toString.call(val) === '[object Function]';
         },
 
+        result: function(val, defaultValue, scope) {
+            return !Utils.isDefined(val) ? defaultValue : (Utils.isFunction(val) ? val.call(scope || window) : val);
+        },
+
         proxy:function(fn, scope) {
             return function() {
                 return fn.apply(scope, arguments);
-            };
-        },
-
-        createOrientationChangeProxy: function(fn, scope) {
-            return function() {
-                clearTimeout(scope.orientationChangedTimeout);
-                var args = slice.call(arguments, 0);
-                scope.orientationChangedTimeout = setTimeout(Utils.proxy(function() {
-                    var ori = window.orientation;
-                    if (ori != scope.lastOrientation) {
-                        fn.apply(scope, args);
-                    }
-                    scope.lastOrientation = ori;
-                }, scope), os.android ? 300 : 50);
             };
         },
 
@@ -503,76 +677,6 @@
             };
         },
 
-        vendor: (function() {
-            var dummyStyle = document.createElement('div').style,
-                propVendor = (function () {
-                    var vendors = 't,webkitT,MozT,msT,OT'.split(','),
-                        t,
-                        i = 0,
-                        l = vendors.length;
-
-                    for (; i < l; i++) {
-                        t = vendors[i] + 'ransform';
-                        if (t in dummyStyle) {
-                            return vendors[i].substr(0, vendors[i].length - 1);
-                        }
-                    }
-
-                    return false;
-                }()),
-                cssVendor = propVendor ? '-' + propVendor.toLowerCase() + '-' : '',
-                prefixStyle = function(style) {
-                    if (propVendor === '') return style;
-                    style = style.charAt(0).toUpperCase() + style.substr(1);
-                    return propVendor + style;
-                },
-                transform = prefixStyle('transform'),
-                transition = prefixStyle('transition'),
-                transitionProperty = prefixStyle('transitionProperty'),
-                transitionDuration = prefixStyle('transitionDuration'),
-                transformOrigin = prefixStyle('transformOrigin'),
-                transitionTimingFunction = prefixStyle('transitionTimingFunction'),
-                transitionDelay = prefixStyle('transitionDelay'),
-                transitionEndEvent = (function() {
-                    if (propVendor == 'webkit' || propVendor === 'O') {
-                        return propVendor.toLowerCase() + 'TransitionEnd';
-                    }
-                    return 'transitionend';
-                }());
-
-            dummyStyle = null;
-
-            return {
-                propVendor: propVendor,
-                cssVendor: cssVendor,
-                transform: transform,
-                transition: transition,
-                transitionProperty: transitionProperty,
-                transitionDuration: transitionDuration,
-                transformOrigin: transformOrigin,
-                transitionTimingFunction: transitionTimingFunction,
-                transitionDelay: transitionDelay,
-                transitionEndEvent: transitionEndEvent
-            };
-        }()),
-
-        listenTransition: function(target, duration, callbackFn) {
-            var me = this,
-                transitionEndEvent = Utils.vendor.transitionEndEvent,
-                clear = function() {
-                    if (target.transitionTimer) clearTimeout(target.transitionTimer);
-                    target.transitionTimer = null;
-                    target.removeEventListener(transitionEndEvent, handler, false);
-                },
-                handler = function() {
-                    clear();
-                    if (callbackFn) callbackFn.call(me);
-                };
-            clear();
-            target.addEventListener(transitionEndEvent, handler, false);
-            target.transitionTimer = setTimeout(handler, duration + 100);
-        },
-
         queryFunction: function(method) {
             var fn;
             if (method && Utils.isString(method)) {
@@ -606,8 +710,10 @@
 
 })(window);
 (function(window) {
-    var iBoxUtils = window.iBoxUtils,
-        slice = Array.prototype.slice;
+    var slice = Array.prototype.slice,
+        supporter = window.supporter,
+        resizer = window.resizer,
+        iBoxUtils = window.iBoxUtils;
 
     /**
      * @class iBox
@@ -661,15 +767,12 @@
 
             this.render(target);
             this.scrollTop();
-            this.resize();
+            resizer.on(this.resize, this).trigger();
 
             var first = this.body.children[0];
             if (first) {
                 this.slide({ el: first, silent: true });
             }
-
-            window.addEventListener('resize', this, false);
-            window.addEventListener('orientationchange', this, false);
         },
 
         // private
@@ -721,42 +824,25 @@
          * 重置iBox高宽
          */
         resize: function() {
-            var innerWidth = window.innerWidth,
-                innerHeight = window.innerHeight,
-                screenWidth = window.screen.width,
-                screenHeight = window.screen.height,
-                offsetTop = this.offsets.top,
-                offsetBottom = this.offsets.bottom,
-                width = innerWidth, height, headerHeight,
-                elSize, headerSize, bodySize;
+            var width = resizer.width, height = resizer.height,
+                offsetTop = iBoxUtils.result(this.offsets.top, 0, this),
+                offsetBottom = iBoxUtils.result(this.offsets.bottom, 0, this),
+                elSize, headerSize, bodySize, headerHeight;
 
-            offsetTop = iBoxUtils.isFunction(offsetTop) ? offsetTop() : offsetTop;
-            offsetBottom = iBoxUtils.isFunction(offsetBottom) ? offsetBottom() : offsetBottom;
-
-            if (iBoxUtils.isSafari && !iBoxUtils.os.ios7) { // 计算高度，收起 iOS6 顶部导航条
-                height = window.navigator.standalone ? innerHeight : (window.orientation === 0 ? screenHeight - 44 : screenWidth - 32) - 20;
-                height = height < innerHeight ? innerHeight : height;
-            } else {
-                height = innerHeight;
-            }
             height = height - offsetTop - offsetBottom;
+            elSize = iBoxUtils.getComputedSize(this.el, { width: width, height: height });
+            headerHeight = iBoxUtils.getComputedSize(this.header).outerHeight;
+            headerSize = iBoxUtils.getComputedSize(this.header, { width: elSize.innerWidth, height: headerHeight });
+            bodySize = iBoxUtils.getComputedSize(this.body, { width: elSize.innerWidth, height: elSize.innerHeight - headerHeight });
 
-            if (width != this.lastWidth || height != this.lastHeight) {
-                this.lastWidth = width;
-                this.lastHeight = height;
+            this.scrollTop();
 
-                elSize = iBoxUtils.getComputedSize(this.el, { width: width, height: height });
-                headerHeight = iBoxUtils.getComputedSize(this.header).outerHeight;
-                headerSize = iBoxUtils.getComputedSize(this.header, { width: elSize.innerWidth, height: headerHeight });
-                bodySize = iBoxUtils.getComputedSize(this.body, { width: elSize.innerWidth, height: elSize.innerHeight - headerHeight });
+            this.el.style.cssText = 'top:' + offsetTop + 'px;width:' + elSize.innerWidth + 'px;height:' + elSize.innerHeight + 'px;';
+            this.header.style.cssText = 'top:0px;width:' + headerSize.innerWidth + 'px;height:' + headerSize.innerHeight + 'px;';
+            this.body.style.cssText = 'top:' + headerHeight + 'px;width:' + bodySize.innerWidth + 'px;height:' + bodySize.innerHeight + 'px;';
 
-                this.el.style.cssText = 'top:' + offsetTop + 'px;width:' + elSize.innerWidth + 'px;height:' + elSize.innerHeight + 'px;';
-                this.header.style.cssText = 'top:0px;width:' + headerSize.innerWidth + 'px;height:' + headerSize.innerHeight + 'px;';
-                this.body.style.cssText = 'top:' + headerHeight + 'px;width:' + bodySize.innerWidth + 'px;height:' + bodySize.innerHeight + 'px;';
-
-                if (this.lastView && !this.sliding) this.lastView.resize();
-                this.onResize(elSize, headerSize, bodySize);
-            }
+            if (this.lastView && !this.sliding) this.lastView.resize();
+            this.onResize(elSize, headerSize, bodySize);
         },
 
         /**
@@ -848,24 +934,7 @@
 
         // private
         scrollTop: function() {
-            if (iBoxUtils.isSafari) window.scrollTo(0, 1);
-        },
-
-        // private
-        onOrientationChanged: function(e) {
-            this.scrollTop();
-            this.resize();
-        },
-
-        handleEvent: function(e) {
-            switch (e.type) {
-                case 'orientationchange':
-                    this.onOrientationChanged(e);
-                    break;
-                case 'resize':
-                    this.onResize(e);
-                    break;
-            }
+            if (supporter.isSafari) window.scrollTo(0, 1);
         },
 
         /**
@@ -888,8 +957,7 @@
                 this.destroyed = true;
                 this.beforeDestroy();
 
-                window.removeEventListener('orientationchange', this, false);
-                window.removeEventListener('resize', this, false);
+                resizer.off(this.resize, this);
 
                 for (var o in this.view) {
                     this.views[o].destroy();
@@ -937,7 +1005,7 @@
             }
             viewport.content = content;
         }
-        if (!iBoxUtils.os.ios7 && iBoxUtils.os.iphone5) {
+        if (!supporter.os.ios7 && window.screen.height === 528) {
             setViewportWidthProperty('320.1');
         } else {
             setViewportWidthProperty('device-width');
@@ -956,6 +1024,8 @@
 })(window);
 (function(window) {
     var IScroll = window.IScroll,
+        vendor = window.vendor,
+        adapter = window.adapter,
         iBoxUtils = window.iBoxUtils;
 
     /**
@@ -1063,7 +1133,7 @@
         slide: function(reverse, action, silent, callbackFn) {
             var me = this,
                 ct = me.ct, el = me.el,
-                cssVendor = iBoxUtils.vendor.cssVendor,
+                cssPrefix = vendor.cssPrefix,
                 ctSize = iBoxUtils.getComputedSize(ct),
                 elSize = iBoxUtils.getComputedSize(el, { width: ctSize.outerWidth, height: ctSize.outerHeight }),
                 beforeCss, afterCss,
@@ -1079,7 +1149,7 @@
                 shadow = '-5px 0 20px #dddddd';
             }
 
-            afterCss = 'display:block;z-index:' + zIndex + ';opacity:' + (action == 'in' ? 1 : 0.7) + ';' + cssVendor + 'box-shadow:' + shadow + ';width:' + elSize.innerWidth + 'px;height:' + elSize.innerHeight + 'px;' + cssVendor + 'transform:translate3d(' + (action == 'in' ? '0' : (reverse ? ctSize.width : -offset)) + 'px,0px,0px);' + (silent === true ? '' : cssVendor + 'transition:' + cssVendor + 'transform ' + duration + 'ms,opacity ' + duration + 'ms;');
+            afterCss = 'display:block;z-index:' + zIndex + ';opacity:' + (action == 'in' ? 1 : 0.7) + ';' + cssPrefix + 'box-shadow:' + shadow + ';width:' + elSize.innerWidth + 'px;height:' + elSize.innerHeight + 'px;' + cssPrefix + 'transform:translate3d(' + (action == 'in' ? '0' : (reverse ? ctSize.width : -offset)) + 'px,0px,0px);' + (silent === true ? '' : cssPrefix + 'transition:' + cssPrefix + 'transform ' + duration + 'ms,opacity ' + duration + 'ms;');
             handler = function() {
                 if (action != 'in' && el) {
                     el.style.display = 'none';
@@ -1091,10 +1161,10 @@
             };
             if (silent !== true) {
                 if (action == 'in') {
-                    beforeCss = 'display:block;z-index:' + zIndex + ';opacity:' + (reverse ? 0.5 : 1) + ';' + cssVendor + 'box-shadow:' + shadow + ';width:' + elSize.innerWidth + 'px;height:' + elSize.innerHeight + 'px;' + cssVendor + 'transform:translate3d(' + (reverse ? -offset : ctSize.width) + 'px,0px,0px);';
+                    beforeCss = 'display:block;z-index:' + zIndex + ';opacity:' + (reverse ? 0.5 : 1) + ';' + cssPrefix + 'box-shadow:' + shadow + ';width:' + elSize.innerWidth + 'px;height:' + elSize.innerHeight + 'px;' + cssPrefix + 'transform:translate3d(' + (reverse ? -offset : ctSize.width) + 'px,0px,0px);';
                     el.style.cssText = beforeCss;
                 }
-                iBoxUtils.listenTransition(el, duration + defer, handler);
+                adapter.listenTransition(el, duration + defer, handler);
                 setTimeout(function() { el.style.cssText = afterCss; }, defer);
             } else {
                 el.style.cssText = afterCss;
@@ -1273,6 +1343,9 @@
             move: msPointerEnabled ? 'MSPointerMove' : 'touchmove',
             end: msPointerEnabled ? 'MSPointerUp' : 'touchend'
         },
+        vendor = window.vendor,
+        supporter = window.supporter,
+        adapter = window.adapter,
         iBoxUtils = window.iBoxUtils;
 
     /**
@@ -1340,7 +1413,7 @@
 
             if (handler) {
                 btn.clickHandler = handler;
-                if (iBoxUtils.isMobile()) {
+                if (supporter.isSmartDevice) {
                     btn.addEventListener(TOUCH_EVENTS.start, this, false);
                     btn.addEventListener(TOUCH_EVENTS.end, this, false);
                 }
@@ -1368,7 +1441,7 @@
 
         doSlide: function(reverse, action, silent, callbackFn) {
             var me = this,
-                cssVendor = iBoxUtils.vendor.cssVendor,
+                cssPrefix = vendor.cssPrefix,
                 direction = reverse ? 'right' : 'left',
                 leftButton = me.leftButton, leftText,
                 rightButton = me.rightButton,
@@ -1381,9 +1454,9 @@
                 duration = 350, opacityDuration = 300, defer = 50;
 
             if (action == 'in') {
-                if (leftButton) leftButton.style.cssText = 'display:block;' + cssVendor + 'transform:translate3d(-1000px,-1000px,0px);';
-                if (rightButton) rightButton.style.cssText = 'display:block;' + cssVendor + 'transform:translate3d(-1000px,-1000px,0px);';
-                if (title) title.style.cssText = 'display:block;' + cssVendor + 'transform:translate3d(-1000px,-1000px,0px);';
+                if (leftButton) leftButton.style.cssText = 'display:block;' + cssPrefix + 'transform:translate3d(-1000px,-1000px,0px);';
+                if (rightButton) rightButton.style.cssText = 'display:block;' + cssPrefix + 'transform:translate3d(-1000px,-1000px,0px);';
+                if (title) title.style.cssText = 'display:block;' + cssPrefix + 'transform:translate3d(-1000px,-1000px,0px);';
             }
 
             leftWidth = leftButton ? iBoxUtils.getComputedSize(leftButton).outerWidth : 0;
@@ -1404,16 +1477,16 @@
                 leftText = leftButton.querySelector('div');
                 leftInnerWidth = iBoxUtils.getComputedSize(leftButton, leftWidth).innerWidth;
                 leftTextWidth = iBoxUtils.getComputedSize(leftText, leftInnerWidth).innerWidth;
-                leftAfterCss = 'display:block;width:' + leftInnerWidth + 'px;opacity:' + (action == 'in' ? '1' : '0') + ';' + (silent === true ? '' : cssVendor + 'transition:' + 'opacity ' + opacityDuration + 'ms;');
-                leftTextAfterCss = 'width:' + leftTextWidth + 'px;' + cssVendor + 'transform:translate3d(' + (action == 'in' ? 0 : (direction == 'left' ? -leftWidth : titleLeft)) + 'px,0px,0px);' + (silent === true ? '' : '' + cssVendor + 'transition:' + cssVendor + 'transform ' + duration + 'ms;');
+                leftAfterCss = 'display:block;width:' + leftInnerWidth + 'px;opacity:' + (action == 'in' ? '1' : '0') + ';' + (silent === true ? '' : cssPrefix + 'transition:' + 'opacity ' + opacityDuration + 'ms;');
+                leftTextAfterCss = 'width:' + leftTextWidth + 'px;' + cssPrefix + 'transform:translate3d(' + (action == 'in' ? 0 : (direction == 'left' ? -leftWidth : titleLeft)) + 'px,0px,0px);' + (silent === true ? '' : '' + cssPrefix + 'transition:' + cssPrefix + 'transform ' + duration + 'ms;');
                 if (silent !== true) {
                     if (action == 'in') {
                         leftBeforeCss = 'display:block;width:' + leftInnerWidth + 'px;opacity:0;';
-                        leftTextBeforeCss = 'width:' + leftTextWidth + 'px;' + cssVendor + 'transform:translate3d(' + (direction == 'left' ? titleLeft : -leftWidth) + 'px,0px,0px);';
+                        leftTextBeforeCss = 'width:' + leftTextWidth + 'px;' + cssPrefix + 'transform:translate3d(' + (direction == 'left' ? titleLeft : -leftWidth) + 'px,0px,0px);';
                         leftButton.style.cssText = leftBeforeCss;
                         leftText.style.cssText = leftTextBeforeCss;
                     }
-                    iBoxUtils.listenTransition(leftButton, duration + defer, function() {
+                    adapter.listenTransition(leftButton, duration + defer, function() {
                         if (action != 'in' && me.leftButton) me.leftButton.style.display = 'none';
                     });
                     setTimeout(function() {
@@ -1428,13 +1501,13 @@
             }
             if (rightButton) {
                 iBoxUtils.removeClass(rightButton, 'highlighted');
-                rightAfterCss = 'display:block;opacity:' + (action == 'in' ? '1' : '0') + ';' + (silent === true ? '' : cssVendor + 'transition:opacity ' + opacityDuration + 'ms;');
+                rightAfterCss = 'display:block;opacity:' + (action == 'in' ? '1' : '0') + ';' + (silent === true ? '' : cssPrefix + 'transition:opacity ' + opacityDuration + 'ms;');
                 if (silent !== true) {
                     if (action == 'in') {
                         rightBeforeCss = 'display:block;opacity:0;';
                         rightButton.style.cssText = rightBeforeCss;
                     }
-                    iBoxUtils.listenTransition(rightButton, duration + defer, function() {
+                    adapter.listenTransition(rightButton, duration + defer, function() {
                         if (action != 'in' && me.rightButton) me.rightButton.style.display = 'none';
                     });
                     setTimeout(function() {
@@ -1446,13 +1519,13 @@
                 }
             }
             if (title) {
-                titleAfterCss = 'display:block;opacity:' + (action == 'in' ? '1' : '0') + ';' + cssVendor + 'transform:translate3d(' + (action == 'in' ? titleLeft : (direction == 'left' ? 30 : headerWidth)) + 'px,0px,0px);' + (silent === true ? '' : cssVendor + 'transition:' + cssVendor + 'transform ' + duration + 'ms,opacity ' + opacityDuration + 'ms;');
+                titleAfterCss = 'display:block;opacity:' + (action == 'in' ? '1' : '0') + ';' + cssPrefix + 'transform:translate3d(' + (action == 'in' ? titleLeft : (direction == 'left' ? 30 : headerWidth)) + 'px,0px,0px);' + (silent === true ? '' : cssPrefix + 'transition:' + cssPrefix + 'transform ' + duration + 'ms,opacity ' + opacityDuration + 'ms;');
                 if (silent !== true) {
                     if (action == 'in') {
-                        titleBeforeCss = 'display:block;opacity:0;' + cssVendor + 'transform:translate3d(' + (direction == 'left' ? (headerWidth - titleWidth / 2) : 0) + 'px,0px,0px);';
+                        titleBeforeCss = 'display:block;opacity:0;' + cssPrefix + 'transform:translate3d(' + (direction == 'left' ? (headerWidth - titleWidth / 2) : 0) + 'px,0px,0px);';
                         title.style.cssText = titleBeforeCss;
                     }
-                    iBoxUtils.listenTransition(title, duration + defer, function() {
+                    adapter.listenTransition(title, duration + defer, function() {
                         if (action != 'in' && me.title) me.title.style.display = 'none';
                         if (callbackFn) callbackFn.call(me);
                     });
@@ -1495,7 +1568,7 @@
                 btn = this[text + 'Button'];
 
             if (btn) {
-                if (iBoxUtils.isMobile()) {
+                if (supporter.isSmartDevice) {
                     btn.removeEventListener(TOUCH_EVENTS.start, this, false);
                     btn.removeEventListener(TOUCH_EVENTS.end, this, false);
                 }
