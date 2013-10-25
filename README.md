@@ -21,7 +21,7 @@ iBox 包括两部分：ibox.js、css(resources/css)
 
 引入JS，依赖 iScroll5
 ```
-<script type="text/javascript" src="../share/iscroll-lite-5.0.4.min.js"></script>
+<script type="text/javascript" src="../share/iscroll-lite-5.0.5.min.js"></script>
 <script type="text/javascript" src="../../ibox.js"></script>
 ```
 
