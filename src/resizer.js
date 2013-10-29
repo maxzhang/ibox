@@ -63,9 +63,9 @@
                 });
                 return pub;
             },
-            off: function(callbackFn, scope, options) {
+            off: function(callbackFn, scope) {
                 callbacks.every(function(o, i) {
-                    if (o.fn === callbackFn && o.scope === scope && o.options === options) {
+                    if (o.fn === callbackFn && o.scope === scope) {
                         callbacks.splice(i, 1);
                         return false;
                     }
