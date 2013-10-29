@@ -42,6 +42,7 @@
          *
          *  Boolean : android
          *  Boolean : android4
+         *  Boolean : android3
          *  Boolean : android2
          *  Boolean : ios
          *  Boolean : ios7
