@@ -74,6 +74,11 @@
         /**
          * 是否safari浏览器
          */
-        isSafari: isSafari
+        isSafari: isSafari,
+
+        /**
+         * 低于iOS7
+         */
+        isBelowIos7: os.ios && isSafari && !os.ios7
     };
 })(window);
