@@ -565,7 +565,7 @@
         };
 
         window.addEventListener('resize', resize, false);
-        window.addEventListener('orientationchange', adapter.createOrientationChangeProxy(resize), false);
+        window.addEventListener('orientationchange', adapter.createOrientationChangeProxy(processResize), false);
         resize();
 
         return pub;
