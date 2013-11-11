@@ -444,6 +444,7 @@
          *
          *  Boolean : android
          *  Boolean : android4
+         *  Boolean : android3
          *  Boolean : android2
          *  Boolean : ios
          *  Boolean : ios7
@@ -475,7 +476,12 @@
         /**
          * 是否safari浏览器
          */
-        isSafari: isSafari
+        isSafari: isSafari,
+
+        /**
+         * 低于iOS7
+         */
+        isBelowIos7: os.ios && isSafari && !os.ios7
     };
 })(window);
 (function(window) {
@@ -509,7 +515,7 @@
                 offsetLeft, offsetRight, offsetTop, offsetBottom,
                 fn, scope, options;
 
-            if (supporter.isSmartDevice && supporter.isSafari && !supporter.os.ios7) { // 计算高度，收起 iOS6 顶部导航条
+            if (supporter.isBelowIos7) { // 计算高度，收起 iOS6 顶部导航条
                 height = navigator.standalone ? innerHeight : (window.orientation === 0 ? screenHeight - 44 : screenWidth - 32) - 20;
                 height = height < innerHeight ? innerHeight : height;
             } else {
@@ -559,7 +565,7 @@
         };
 
         window.addEventListener('resize', resize, false);
-        window.addEventListener('orientationchange', adapter.createOrientationChangeProxy(processResize), false);
+        window.addEventListener('orientationchange', adapter.createOrientationChangeProxy(resize), false);
         resize();
 
         return pub;
