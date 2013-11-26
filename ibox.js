@@ -420,9 +420,7 @@
     if (ios) {
         os.ios = true;
         os.version = ios[2].replace(/_/g, '.');
-        os.ios7 = /^7/.test(os.version);
-        os.ios6 = /^6/.test(os.version);
-        os.ios5 = /^5/.test(os.version);
+        os['ios' + os.version.match(/^(\w+)/i)[1]] = true;
         if (ios[1] === 'iPad') {
             os.ipad = true;
         } else if (ios[1] === 'iPhone') {
@@ -481,7 +479,7 @@
         /**
          * 低于iOS7
          */
-        isBelowIos7: os.ios && isSafari && !os.ios7
+        isBelowIos7: !!(os.ios && os.version.match(/^(\w+)/i)[1] < 7)
     };
 })(window);
 (function(window) {
@@ -515,7 +513,7 @@
                 offsetLeft, offsetRight, offsetTop, offsetBottom,
                 fn, scope, options;
 
-            if (supporter.isBelowIos7) { // 计算高度，收起 iOS6 顶部导航条
+            if (supporter.isSafari && supporter.isBelowIos7) { // 计算高度，收起 iOS6 顶部导航条
                 height = navigator.standalone ? innerHeight : (window.orientation === 0 ? screenHeight - 44 : screenWidth - 32) - 20;
                 height = height < innerHeight ? innerHeight : height;
             } else {
