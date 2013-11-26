@@ -29,7 +29,7 @@
                 offsetLeft, offsetRight, offsetTop, offsetBottom,
                 fn, scope, options;
 
-            if (supporter.isBelowIos7) { // 计算高度，收起 iOS6 顶部导航条
+            if (supporter.isSafari && supporter.isBelowIos7) { // 计算高度，收起 iOS6 顶部导航条
                 height = navigator.standalone ? innerHeight : (window.orientation === 0 ? screenHeight - 44 : screenWidth - 32) - 20;
                 height = height < innerHeight ? innerHeight : height;
             } else {

@@ -18,9 +18,7 @@
     if (ios) {
         os.ios = true;
         os.version = ios[2].replace(/_/g, '.');
-        os.ios7 = /^7/.test(os.version);
-        os.ios6 = /^6/.test(os.version);
-        os.ios5 = /^5/.test(os.version);
+        os['ios' + os.version.match(/^(\w+)/i)[1]] = true;
         if (ios[1] === 'iPad') {
             os.ipad = true;
         } else if (ios[1] === 'iPhone') {
@@ -79,6 +77,6 @@
         /**
          * 低于iOS7
          */
-        isBelowIos7: os.ios && isSafari && !os.ios7
+        isBelowIos7: !!(os.ios && os.version.match(/^(\w+)/i)[1] < 7)
     };
 })(window);
