@@ -27,7 +27,7 @@ iBox 包括两部分：ibox.js、css(resources/css)
 
 ### Simple Example
 
-http://maxzhang.github.io/dev/ibox2/examples/simple/index.html
+http://maxzhang.github.io/dev/ibox/examples/simple/index.html
 
 #### 截图
 
