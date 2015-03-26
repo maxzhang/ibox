@@ -1,0 +1,33 @@
+CACHE MANIFEST
+
+# Version 1.28
+
+CACHE:
+
+index.html
+
+../assets/artTemplate-2.0.1.js
+../assets/iscroll-4.2.5.js
+../assets/moment-2.0.0.js
+../../ibox.js
+notes.js
+
+../../resources/css/ibox.css
+notes.css
+
+images/button.png
+images/button-back.png
+images/button-red.png
+images/head-bg.jpg
+images/next.png
+images/plus-2-32.png
+images/view-bg.png
+images/view-top.png
+images/view-bottom.png
+images/view-bg-edit.png
+images/view-top-edit.png
+images/view-bottom-edit.png
+images/icon144.png
+
+NETWORK:
+*

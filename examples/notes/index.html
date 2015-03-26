@@ -1,0 +1,71 @@
+<!doctype html>
+<html manifest="appcache.manifest">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=320.1, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<meta name="format-detection" content="telephone=no, email=no" />
+<title>Notes</title>
+
+<link rel="apple-touch-icon-precomposed" href="images/icon57.png" />
+<link rel="apple-touch-icon-precomposed" href="images/icon114.png" sizes="114x114" />
+<link rel="apple-touch-icon-precomposed" href="images/icon72.png" sizes="72x72" />
+<link rel="apple-touch-icon-precomposed" href="images/icon144.png" sizes="144x144" />
+<link rel="apple-touch-startup-image" href="images/notesStartup.jpg" />
+<link rel="apple-touch-startup-image" href="images/notesStartup920.jpg" media="(-webkit-min-device-pixel-ratio: 2)" />
+<link rel="apple-touch-startup-image" href="images/notesStartup1096.jpg" media="(device-height: 568px)" />
+
+<link rel="stylesheet" href="../../resources/css/ibox.css" media="all" />
+<link rel="stylesheet" href="notes.css" media="all" />
+</head>
+
+<body style="height: 100%">
+
+<div class="ibox" style="height: 548px;">
+    <div class="ibox-header">
+        <div class="title" data-view="note-main" style="-webkit-transform: translate3d(132px, 0px, 0px);">Notes</div>
+        <div class="button right" data-view="note-main" data-handler="Notes.addHandler" style="-webkit-transform: translate3d(280px, 0px, 0px);"><img src="images/plus-2-32.png" /></div>
+    </div>
+    <div class="ibox-body" style="height: 504px; top: 44px;">
+        <div id="note-main" class="ibox-view note-main" style="width: 100%;height: 100%">
+            <div class="wrapper">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="installTmpl" type="text/tmpl">
+    <div class="install">
+        <img src="images/icon144.png" />
+        <h2>Add to your <strong>Home Screen</strong></h2>
+    </div>
+</script>
+<script id="noteMainTmpl" type="text/tmpl">
+    <% if (notes.length > 0) { %>
+        <ul>
+            <% for (var i = 0, len = notes.length; i < len; i++) { %>
+                <li data-index="<%= notes[i].index %>">
+                    <div class="ct"><em><%= notes[i].content %></em><span><%= notes[i].create %></span><i></i></div>
+                    <div class="btn"><button>Delete</button></div>
+                </li>
+            <% } %>
+        </ul>
+    <% } else { %>
+        <div class="empty">No Notes</div>
+    <% } %>
+</script>
+<script id="noteEditTmpl" type="text/tmpl">
+    <span class="create"><%= create %></span>
+    <span class="now"><%= now %></span>
+    <textarea></textarea>
+</script>
+<script type="text/javascript" src="../assets/artTemplate-2.0.1.js"></script>
+<script type="text/javascript" src="../assets/iscroll-4.2.5.js"></script>
+<script type="text/javascript" src="../assets/moment-2.0.0.js"></script>
+<script type="text/javascript" src="../../ibox.js"></script>
+<script type="text/javascript" src="notes.js"></script>
+
+</body>
+</html>

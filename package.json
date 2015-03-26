@@ -1,32 +1,18 @@
 {
-    "name": "ibox2",
-    "description": "iBox is a WebApp UI JavaScript library that the feature like iOS 7.",
-    "version": "2.0.6",
-    "homepage": "https://github.com/maxzhang/ibox2",
+    "name": "ibox",
+    "description": "iBox is a WebApp UI JavaScript library that the feature like iOS.",
+    "version": "1.0.7",
+    "homepage": "https://github.com/maxzhang/ibox",
     "author": "Max Zhang <zhangdaiping@gmail.com>",
-    "keywords": [
-        "ibox",
-        "ibox2",
-        "ios",
-        "ios7",
-        "mobile"
-    ],
     "respository": {
         "type": "git",
-        "url": "https://github.com/maxzhang/ibox2.git"
+        "url": "https://github.com/maxzhang/ibox.git"
     },
-    "devDependencies": {
-        "jshint": "~2.1.4",
-        "uglify-js": "~2.3.6"
-    },
+    "license": "MIT",
     "dependencies": {
-        "iscroll": "~5.0.4"
-    },
-    "bugs": {
-        "url": "https://github.com/maxzhang/ibox2/issues"
+        "iscroll": "4.2.5"
     },
     "engines": {
         "node": "*"
-    },
-    "license": "MIT"
+    }
 }
